@@ -4,12 +4,17 @@ var ctx;
 var viewRect;
 var socket;
 
+// Key tracking
+var pressedKeys = {};
+window.onkeyup = function(e) { pressedKeys[e.keyCode] = false; }
+window.onkeydown = function(e) { pressedKeys[e.keyCode] = true; }
+
 // Variables for the game
 var grid = { w: 1, h: 1 };
-var myTank = 0;
+var myTankIndex = 0;
 var tanks = [
-    { x: 0.5, y: 0.5, r: 1.7, col: "lime" },
-    { x: 0.4, y: 1.3, r: 0.5, col: "blue" }
+    new Tank(0.5, 0.5, 1.7, "lime"),
+    new Tank(0.4, 1.7, 0.5, "blue")
 ];
 
 var lastTime = Date.now();
@@ -26,6 +31,16 @@ const TANK_OUTLINE_THICKNESS = 0.01;
 const BARREL_RADIUS = 0.1;
 const BARREL_OVERHANG = 0.2;
 const TURRET_RADIUS = 0.1;
+
+// Key bindings
+const KEY_LEFT = 75;
+const KEY_UP = 79;
+const KEY_RIGHT = 59;
+const KEY_DOWN = 76;
+
+// Gameplay constants
+const ROTATION_SPEED = 3; // rad/s
+
 
 // Called when the document loads
 function onLoad() {
@@ -61,7 +76,25 @@ function frame() {
     var timeDelta = (Date.now() - lastTime) / 1000;
     lastTime = Date.now();
 
-    tanks[myTank].r += 1 * timeDelta;
+    // Control my tank
+    var myTank = tanks[myTankIndex];
+
+    myTank.angularVelocity = 0;
+    if (pressedKeys[KEY_LEFT ] == true) { myTank.angularVelocity -= 1; }
+    if (pressedKeys[KEY_RIGHT] == true) { myTank.angularVelocity += 1; }
+
+    myTank.forwardVelocity = 0;
+    if (pressedKeys[KEY_DOWN] == true) { myTank.forwardVelocity -= 1; }
+    if (pressedKeys[KEY_UP  ] == true) { myTank.forwardVelocity += 1; }
+
+    // Update all the tanks' positions
+    for (var i = 0; i < tanks.length; i++) {
+        var tank = tanks[i];
+
+        tank.r += tank.angularVelocity * timeDelta * ROTATION_SPEED;
+        tank.x -= tank.forwardVelocity * Math.sin(-tank.r) * timeDelta;
+        tank.y -= tank.forwardVelocity * Math.cos(-tank.r) * timeDelta;
+    }
 
     /* ===== RENDERING ==== */
     // Clear the canvas
@@ -80,9 +113,7 @@ function frame() {
 
     // Draw the tanks
     for (var i = 0; i < tanks.length; i++) {
-        var tank = tanks[i];
-
-        drawTank(tank);
+        tanks[i].draw();
     }
 
     ctx.restore();
@@ -90,46 +121,57 @@ function frame() {
     window.requestAnimationFrame(frame);
 }
 
-// Draw a tank
-function drawTank(tank) {
-    // Save the canvas and move it so that the tank is at (0, 0) looking upwards
-    ctx.save();
-    ctx.translate(tank.x, tank.y);
-    ctx.rotate(tank.r);
-
-    // Setup the right colours and line widths
-    ctx.strokeStyle = "black";
-    ctx.fillStyle = tank.col;
-    ctx.lineWidth = 0.01;
-
-    // Tank body
-    fillStrokeRect(
-        TANK_WIDTH * -0.5,
-        TANK_LENGTH * -0.5,
-        TANK_WIDTH,
-        TANK_LENGTH
-    );
-
-    // Barrel
-    fillStrokeRect(
-        TANK_WIDTH * -BARREL_RADIUS,
-        TANK_LENGTH * -(0.5 + BARREL_OVERHANG),
-        TANK_WIDTH * BARREL_RADIUS * 2,
-        TANK_LENGTH * (0.5 + BARREL_OVERHANG)
-    );
-
-    // Turret
-    ctx.beginPath();
-    ctx.arc(0, 0, TURRET_RADIUS, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // Reset the canvas to where it was before drawing the tank
-    ctx.restore();
-}
-
 // Draw a rectangle with both a fill and a stroke
 function fillStrokeRect(x, y, w, h) {
     ctx.fillRect(x, y, w, h);
     ctx.strokeRect(x, y, w, h);
+}
+
+// Constructor for a new tank
+function Tank(x, y, r, col) {
+    this.x = x;
+    this.y = y;
+    this.r = r;
+    this.col = col;
+
+    this.angularVelocity = 0;
+    this.forwardVelocity = 0;
+
+    // Draw the tank
+    this.draw = function() {
+        // Save the canvas and move it so that the this is at (0, 0) looking upwards
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.r);
+
+        // Setup the right colours and line widths
+        ctx.strokeStyle = "black";
+        ctx.fillStyle = this.col;
+        ctx.lineWidth = 0.01;
+
+        // Tank body
+        fillStrokeRect(
+            TANK_WIDTH * -0.5,
+            TANK_LENGTH * -0.5,
+            TANK_WIDTH,
+            TANK_LENGTH
+        );
+
+        // Barrel
+        fillStrokeRect(
+            TANK_WIDTH * -BARREL_RADIUS,
+            TANK_LENGTH * -(0.5 + BARREL_OVERHANG),
+            TANK_WIDTH * BARREL_RADIUS * 2,
+            TANK_LENGTH * (0.5 + BARREL_OVERHANG)
+        );
+
+        // Turret
+        ctx.beginPath();
+        ctx.arc(0, 0, TURRET_RADIUS, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Reset the canvas to where it was before drawing the this
+        ctx.restore();
+    }
 }
