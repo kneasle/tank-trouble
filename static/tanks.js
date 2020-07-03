@@ -6,9 +6,13 @@ var socket;
 
 // Variables for the game
 var grid = { w: 1, h: 1 };
+var myTank = 0;
 var tanks = [
-    { x: 0.5, y: 0.5, r: 1.7, col: "lime" }
+    { x: 0.5, y: 0.5, r: 1.7, col: "lime" },
+    { x: 0.4, y: 1.3, r: 0.5, col: "blue" }
 ];
+
+var lastTime = Date.now();
 
 // ===== CONSTANTS =====
 // Constants that are needed by the physics engine
@@ -52,6 +56,14 @@ function onLoad() {
 
 // Called 60 time per second, render the game
 function frame() {
+    /* ===== UPDATES ===== */
+    // Calculate the time since last frame for framerate independence
+    var timeDelta = (Date.now() - lastTime) / 1000;
+    lastTime = Date.now();
+
+    tanks[myTank].r += 1 * timeDelta;
+
+    /* ===== RENDERING ==== */
     // Clear the canvas
     ctx.clearRect(0, 0, viewRect.width, viewRect.height);
 
@@ -74,6 +86,8 @@ function frame() {
     }
 
     ctx.restore();
+
+    window.requestAnimationFrame(frame);
 }
 
 // Draw a tank
