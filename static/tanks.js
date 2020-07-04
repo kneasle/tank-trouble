@@ -40,7 +40,7 @@ const MOVEMENT_SPEED = 1; // square/s
 
 // Lag compensation/debug settings
 const SHOW_SERVER_TANKS = false;
-const LATENCY_COMPENSATION_LERP_FACTOR = 0.2;
+const LATENCY_COMPENSATION_LERP_FACTOR = 12;
 
 
 // Called when the document loads
@@ -136,9 +136,9 @@ function frame() {
                 tank.angularVelocity = sTank.angularVelocity;
                 tank.forwardVelocity = sTank.forwardVelocity;
 
-                tank.x = lerp(tank.x, sTank.x, LATENCY_COMPENSATION_LERP_FACTOR);
-                tank.y = lerp(tank.y, sTank.y, LATENCY_COMPENSATION_LERP_FACTOR);
-                tank.r = lerp(tank.r, sTank.r, LATENCY_COMPENSATION_LERP_FACTOR);
+                tank.x = lerp(tank.x, sTank.x, LATENCY_COMPENSATION_LERP_FACTOR * timeDelta);
+                tank.y = lerp(tank.y, sTank.y, LATENCY_COMPENSATION_LERP_FACTOR * timeDelta);
+                tank.r = lerp(tank.r, sTank.r, LATENCY_COMPENSATION_LERP_FACTOR * timeDelta);
 
                 // Calculate the distance between where the server thinks the tank should be and
                 // where the client thinks the tank should be.  This corresponds to the divergence
