@@ -96,10 +96,6 @@ function frame() {
     // Calculate the time since last frame for framerate independence
     var timeDelta = (Date.now() - lastTime) / 1000;
     lastTime = Date.now();
-    
-    // Debug: Change myTank if pressing 2 or 1
-    if (pressedKeys[49] == true) { myTankIndex = 0; }
-    if (pressedKeys[50] == true) { myTankIndex = 1; }
 
     // Control my tank
     var myTank = null;
