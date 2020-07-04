@@ -58,7 +58,7 @@ function onLoad() {
     socket = io.connect('http://' + document.domain + ':' + location.port);
 
     socket.on('connect', function() {
-        socket.emit('c_new_user', {tank: tanks[myTankIndex], index: myTankIndex})
+        socket.emit('c_new_user')
     });
 
     socket.on('s_broadcast', function(data) {
