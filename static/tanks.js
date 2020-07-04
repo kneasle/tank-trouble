@@ -10,6 +10,7 @@ var pressedKeys = {};
 // Variables for the game
 var grid = { w: 1, h: 1 };
 var tanks = [];
+var serverTanks = [];
 
 var lastTime = Date.now();
 var wasMovingLastFrame = false;
@@ -65,8 +66,8 @@ function onLoad() {
 
     socket.on('s_on_new_user_arrive', function(state) { updateAllTankState(state); });
     socket.on('s_on_user_leave', function(state) { updateAllTankState(state); });
-    socket.on('s_broadcast', function(state) { updateOtherTanksState(state); });
-    socket.on('s_on_tank_move', function(state) { updateOtherTanksState(state); });
+    socket.on('s_broadcast', function(state) { updateServerTankState(state); });
+    socket.on('s_on_tank_move', function(state) { updateServerTankState(state); });
         
     // Set up callbacks
     window.onkeyup = function(e) { pressedKeys[e.keyCode] = false; }
@@ -159,12 +160,8 @@ function updateAllTankState(state) {
     tanks = state;
 }
 
-function updateOtherTanksState(state) {
-    for(var i = 0; i < tanks.length; i++) {
-        if (tanks[i].sid != socket.id) {
-            tanks[i] = state[i];
-        }
-    }
+function updateServerTankState(state) {
+    serverTanks = state;
 }
 
 
