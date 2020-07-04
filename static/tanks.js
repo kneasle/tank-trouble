@@ -38,6 +38,9 @@ const KEY_DOWN = 76;
 const ROTATION_SPEED = 3; // rad/s
 const MOVEMENT_SPEED = 1; // square/s
 
+// Lag compensation/debug settings
+const SHOW_SERVER_TANKS = false;
+
 
 // Called when the document loads
 function onLoad() {
@@ -153,6 +156,12 @@ function frame() {
     for (var i = 0; i < tanks.length; i++) {
         drawTank(tanks[i]);
     }
+    
+    if (SHOW_SERVER_TANKS) {
+        for (var i = 0; i < serverTanks.length; i++) {
+            drawTank(serverTanks[i], "rgba(0,0,0,0)");
+        }
+    }
 
     ctx.restore();
 
@@ -183,7 +192,7 @@ function fillStrokeRect(x, y, w, h) {
 }
 
 // Draw a tank
-function drawTank(tank) {
+function drawTank(tank, fillOverride) {
     // Save the canvas and move it so that the tank is at (0, 0) looking upwards
     ctx.save();
     ctx.translate(tank.x, tank.y);
@@ -191,7 +200,7 @@ function drawTank(tank) {
 
     // Setup the right colours and line widths
     ctx.strokeStyle = "black";
-    ctx.fillStyle = tank.col;
+    ctx.fillStyle = fillOverride || tank.col;
     ctx.lineWidth = 0.01;
 
     // Tank body
