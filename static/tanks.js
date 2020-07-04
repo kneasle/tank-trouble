@@ -119,11 +119,19 @@ function frame() {
     for (var i = 0; i < tanks.length; i++) {
         var tank = tanks[i];
 
-        var movementStep = tank.forwardVelocity * MOVEMENT_SPEED * timeDelta;
+        if (tanks[i].sid == socket.id) {
+            var movementStep = tank.forwardVelocity * MOVEMENT_SPEED * timeDelta;
 
-        tank.r += tank.angularVelocity * timeDelta * ROTATION_SPEED;
-        tank.x -= movementStep * Math.sin(-tank.r);
-        tank.y -= movementStep * Math.cos(-tank.r);
+            tank.r += tank.angularVelocity * timeDelta * ROTATION_SPEED;
+            tank.x -= movementStep * Math.sin(-tank.r);
+            tank.y -= movementStep * Math.cos(-tank.r);
+        } else {
+            if (i <= serverTanks.length) {
+                tank.r = serverTanks[i].r;
+                tank.x = serverTanks[i].x;
+                tank.y = serverTanks[i].y;
+            }
+        }
     }
 
     /* ===== RENDERING ==== */
