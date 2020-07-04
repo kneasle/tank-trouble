@@ -68,8 +68,14 @@ function onLoad() {
         socket.emit('c_on_new_user_arrive', {col: cols[Math.floor(Math.random() * cols.length)]})
     });
 
-    socket.on('s_on_new_user_arrive', function(state) { updateAllTankState(state); });
-    socket.on('s_on_user_leave', function(state) { updateAllTankState(state); });
+    socket.on('s_on_new_user_arrive', function(state) { 
+        tanks = state;
+        serverTanks = state;
+    });
+    socket.on('s_on_user_leave', function(id) {
+        delete tanks[id.id];
+        delete serverTanks[id.id];
+    });
     socket.on('s_broadcast', function(state) { updateServerTankState(state); });
     socket.on('s_on_tank_move', function(state) { updateServerTankState(state); });
         
@@ -200,10 +206,6 @@ function frame() {
 
 
 /* ===== STATE-UPDATING CODE ===== */
-function updateAllTankState(state) {
-    tanks = state;
-}
-
 function updateServerTankState(state) {
     serverTanks = state;
 }

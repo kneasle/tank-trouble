@@ -85,7 +85,7 @@ def on_user_leave_2(methods=['GET', 'POST']):
     try:
         del tanks[request.sid]
 
-        socketio.emit('s_on_user_leave', tanks)
+        socketio.emit('s_on_user_leave', {'id': request.sid})
     finally:
         tankLock.release()
 
