@@ -40,6 +40,7 @@ const MOVEMENT_SPEED = 1; // square/s
 
 // Lag compensation/debug settings
 const SHOW_SERVER_TANKS = false;
+const LATENCY_COMPENSATION_LERP_FACTOR = 0.2;
 
 
 // Called when the document loads
@@ -123,18 +124,43 @@ function frame() {
         var tank = tanks[i];
 
         if (tanks[i].sid == socket.id) {
-            var movementStep = tank.forwardVelocity * MOVEMENT_SPEED * timeDelta;
-
-            tank.r += tank.angularVelocity * timeDelta * ROTATION_SPEED;
-            tank.x -= movementStep * Math.sin(-tank.r);
-            tank.y -= movementStep * Math.cos(-tank.r);
+            // How to update the position of currently controlled tanks if the server tells us 
+            // something different.  For now do nothing - the client knows best.
         } else {
-            if (i <= serverTanks.length) {
-                tank.r = serverTanks[i].r;
-                tank.x = serverTanks[i].x;
-                tank.y = serverTanks[i].y;
+            // How to update the position of other tanks according to what the server says.
+            if (i < serverTanks.length) {
+                var sTank = serverTanks[i];
+
+                // Copy across the velocities, so that the tank will do something approximately
+                // what the server is saying - but that is smooth regardless.
+                tank.angularVelocity = sTank.angularVelocity;
+                tank.forwardVelocity = sTank.forwardVelocity;
+
+                tank.x = lerp(tank.x, sTank.x, LATENCY_COMPENSATION_LERP_FACTOR);
+                tank.y = lerp(tank.y, sTank.y, LATENCY_COMPENSATION_LERP_FACTOR);
+                tank.r = lerp(tank.r, sTank.r, LATENCY_COMPENSATION_LERP_FACTOR);
+
+                // Calculate the distance between where the server thinks the tank should be and
+                // where the client thinks the tank should be.  This corresponds to the divergence
+                var dX = sTank.x - tank.x;
+                var dY = sTank.y - tank.y;
+                var d = Math.sqrt(dX * dX + dY * dY);
+
+                // We compare the cosines of the angles instead of the angles directly, because
+                // the cosine function removes the edge case of wrapping angles round the 2pi mark
+                if (d > 0.1 || Math.cos(tank.r - sTank.r) < Math.cos(0.3)) {
+                    tank.x = sTank.x;
+                    tank.y = sTank.y;
+                    tank.r = sTank.r;
+                }
             }
         }
+
+        var movementStep = tank.forwardVelocity * MOVEMENT_SPEED * timeDelta;
+
+        tank.r += tank.angularVelocity * timeDelta * ROTATION_SPEED;
+        tank.x -= movementStep * Math.sin(-tank.r);
+        tank.y -= movementStep * Math.cos(-tank.r);
     }
 
     /* ===== RENDERING ==== */
@@ -227,4 +253,13 @@ function drawTank(tank, fillOverride) {
 
     // Reset the canvas to where it was before drawing the tank
     ctx.restore();
+}
+
+
+
+
+
+// ===== UTILITIES =====
+function lerp(a, b, t) {
+    return (1 - t) * a + t * b;
 }
