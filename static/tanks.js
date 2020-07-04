@@ -6,12 +6,9 @@ var socket;
 
 // Key tracking
 var pressedKeys = {};
-window.onkeyup = function(e) { pressedKeys[e.keyCode] = false; }
-window.onkeydown = function(e) { pressedKeys[e.keyCode] = true; }
 
 // Variables for the game
 var grid = { w: 1, h: 1 };
-var myTankIndex = 0;
 var tanks = [];
 
 var lastTime = Date.now();
@@ -59,39 +56,37 @@ function onLoad() {
     // Start socketio client
     socket = io.connect('http://' + document.domain + ':' + location.port);
 
+    // When the connection is established, tell the server that a new player has arrived
     socket.on('connect', function() {
-        socket.emit('c_new_user', ["HI"])
+        let cols = ['blue', 'lime', 'magenta', 'green', 'orange', 'red', 'yellow'];
+
+        socket.emit('c_on_new_user_arrive', {col: cols[Math.floor(Math.random() * cols.length)]})
     });
 
-    socket.on('s_on_new_user', function(data) {
-        while(data.length > tanks.length) {
-            tanks.push(new Tank());
-        }
-
-        for(var i = 0; i < data.length; i++) {
-            tanks[i].overwrite(data[i]);
-        }
+    socket.on('s_on_new_user_arrive', function(state) {
+        updateAllTankState(state);
     });
 
-    socket.on('s_broadcast', function(data) {
-        while(data.length > tanks.length) {
-            tanks.push(new Tank());
-        }
+    socket.on('s_on_user_leave', function(state) {
+        updateAllTankState(state);
+    });
 
-        for(var i = 0; i < data.length; i++) {
-            if (i != myTankIndex) {
-                tanks[i].overwrite(data[i]);
-            }
-        }
+    socket.on('s_broadcast', function(state) {
+        updateOtherTanksState(state);
     });
 
     socket.on('s_on_tank_move', function(data) {
-        console.log("HI");
-
-        if (data.index != myTankIndex) {
-            tanks[data.index].overwrite(data.tank);
-        }
+        updateOtherTanksState(state);
     });
+        
+    // Set up callbacks
+    window.onkeyup = function(e) { pressedKeys[e.keyCode] = false; }
+    window.onkeydown = function(e) { pressedKeys[e.keyCode] = true; }
+    window.onbeforeunload = function() {
+        socket.close();
+    }
+
+    // Run the first frame
     frame();
 }
 
@@ -107,7 +102,13 @@ function frame() {
     if (pressedKeys[50] == true) { myTankIndex = 1; }
 
     // Control my tank
-    var myTank = tanks[myTankIndex];
+    var myTank = null;
+
+    for (var i = 0; i < tanks.length; i++) {
+        if (tanks[i].sid == socket.id) {
+            myTank = tanks[i];
+        }
+    }
 
     if (myTank) {
         myTank.angularVelocity = 0;
@@ -121,7 +122,7 @@ function frame() {
         var isMoving = myTank.angularVelocity != 0 || myTank.forwardVelocity != 0;
 
         if (isMoving || wasMovingLastFrame) {
-            socket.emit("c_on_tank_move", { index: myTankIndex, tank: myTank });
+            socket.emit("c_on_tank_move", tanks);
         }
 
         wasMovingLastFrame = isMoving;
@@ -155,7 +156,7 @@ function frame() {
 
     // Draw the tanks
     for (var i = 0; i < tanks.length; i++) {
-        tanks[i].draw();
+        drawTank(tanks[i]);
     }
 
     ctx.restore();
@@ -163,66 +164,67 @@ function frame() {
     window.requestAnimationFrame(frame);
 }
 
+
+
+
+
+// ===== STATE-UPDATING CODE =====
+function updateAllTankState(state) {
+    tanks = state;
+}
+
+function updateOtherTanksState(state) {
+    for(var i = 0; i < tanks.length; i++) {
+        if (tanks[i].sid != socket.id) {
+            tanks[i] = state[i];
+        }
+    }
+}
+
+
+
+
+// ===== DRAWING CODE =====
 // Draw a rectangle with both a fill and a stroke
 function fillStrokeRect(x, y, w, h) {
     ctx.fillRect(x, y, w, h);
     ctx.strokeRect(x, y, w, h);
 }
 
-// Constructor for a new tank
-function Tank(x, y, r, col) {
-    this.x = x || 0;
-    this.y = y || 0;
-    this.r = r || 0;
-    this.col = col || "black";
+// Draw a tank
+function drawTank(tank) {
+    // Save the canvas and move it so that the tank is at (0, 0) looking upwards
+    ctx.save();
+    ctx.translate(tank.x, tank.y);
+    ctx.rotate(tank.r);
 
-    this.angularVelocity = 0;
-    this.forwardVelocity = 0;
+    // Setup the right colours and line widths
+    ctx.strokeStyle = "black";
+    ctx.fillStyle = tank.col;
+    ctx.lineWidth = 0.01;
 
-    // Draw the tank
-    this.draw = function() {
-        // Save the canvas and move it so that the this is at (0, 0) looking upwards
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.r);
+    // Tank body
+    fillStrokeRect(
+        TANK_WIDTH * -0.5,
+        TANK_LENGTH * -0.5,
+        TANK_WIDTH,
+        TANK_LENGTH
+    );
 
-        // Setup the right colours and line widths
-        ctx.strokeStyle = "black";
-        ctx.fillStyle = this.col;
-        ctx.lineWidth = 0.01;
+    // Barrel
+    fillStrokeRect(
+        TANK_WIDTH * -BARREL_RADIUS,
+        TANK_LENGTH * -(0.5 + BARREL_OVERHANG),
+        TANK_WIDTH * BARREL_RADIUS * 2,
+        TANK_LENGTH * (0.5 + BARREL_OVERHANG)
+    );
 
-        // Tank body
-        fillStrokeRect(
-            TANK_WIDTH * -0.5,
-            TANK_LENGTH * -0.5,
-            TANK_WIDTH,
-            TANK_LENGTH
-        );
+    // Turret
+    ctx.beginPath();
+    ctx.arc(0, 0, TURRET_RADIUS, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
 
-        // Barrel
-        fillStrokeRect(
-            TANK_WIDTH * -BARREL_RADIUS,
-            TANK_LENGTH * -(0.5 + BARREL_OVERHANG),
-            TANK_WIDTH * BARREL_RADIUS * 2,
-            TANK_LENGTH * (0.5 + BARREL_OVERHANG)
-        );
-
-        // Turret
-        ctx.beginPath();
-        ctx.arc(0, 0, TURRET_RADIUS, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-
-        // Reset the canvas to where it was before drawing the this
-        ctx.restore();
-    }
-
-    this.overwrite = function(object) {
-        this.x = object.x;
-        this.y = object.y;
-        this.r = object.r;
-        this.col = object.col;
-        this.angularVelocity = object.angularVelocity;
-        this.forwardVelocity = object.forwardVelocity;
-    }
+    // Reset the canvas to where it was before drawing the tank
+    ctx.restore();
 }
