@@ -28,10 +28,13 @@ socketio = SocketIO(app, async_mode='threading')
 
 
 # Broadcast the state of the game every so often to avoid diversion
-def broadcast_function():
+def broadcast():
+    socketio.emit('s_broadcast', tanks)
+
+def broadcast_loop():
     while True:
-        socketio.emit('s_broadcast', tanks)
-        time.sleep(1)
+        broadcast()
+        time.sleep(0.1)
 
 # Function called when the browser loads the root page in the URL
 @app.route('/')
@@ -41,20 +44,17 @@ def sessions():
 
 # Called when a new player arrives
 @socketio.on('c_new_user')
-def handle_my_custom_event(json, methods=['GET', 'POST']):
+def on_new_user(json, methods=['GET', 'POST']):
     print('recieved new user', str(json))
-
-    socketio.emit('s_new_user', json)
 
 
 @socketio.on('c_on_tank_move')
-def handle_my_custom_event(json, methods=['GET', 'POST']):
-    print('received my event: ' + str(json))
-    socketio.emit('my response', json)
+def on_tank_move(json, methods=['GET', 'POST']):
+    tanks[json['index']] = json['tank']
 
 if __name__ == '__main__':
     # Spawn separate thread to broadcast the state of the game to avoid divergence
-    broadcast_thread = threading.Thread(target=broadcast_function)
+    broadcast_thread = threading.Thread(target=broadcast_loop)
 
     broadcast_thread.start()
 

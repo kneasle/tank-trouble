@@ -15,6 +15,7 @@ var myTankIndex = 0;
 var tanks = [];
 
 var lastTime = Date.now();
+var wasMovingLastFrame = false;
 
 // ===== CONSTANTS =====
 // Constants that are needed by the physics engine
@@ -58,7 +59,17 @@ function onLoad() {
     socket = io.connect('http://' + document.domain + ':' + location.port);
 
     socket.on('connect', function() {
-        socket.emit('c_new_user')
+        socket.emit('c_new_user', ["HI"])
+    });
+
+    socket.on('s_on_new_user', function(data) {
+        while(data.length > tanks.length) {
+            tanks.push(new Tank());
+        }
+
+        for(var i = 0; i < data.length; i++) {
+            tanks[i].overwrite(data[i]);
+        }
     });
 
     socket.on('s_broadcast', function(data) {
@@ -67,15 +78,19 @@ function onLoad() {
         }
 
         for(var i = 0; i < data.length; i++) {
-            tanks[i].x = data[i].x;
-            tanks[i].y = data[i].y;
-            tanks[i].r = data[i].r;
-            tanks[i].col = data[i].col;
-            tanks[i].angularVelocity = data[i].angularVelocity;
-            tanks[i].forwardVelocity = data[i].forwardVelocity;
+            if (i != myTankIndex) {
+                tanks[i].overwrite(data[i]);
+            }
         }
     });
 
+    socket.on('s_on_tank_move', function(data) {
+        console.log("HI");
+
+        if (data.index != myTankIndex) {
+            tanks[data.index].overwrite(data.tank);
+        }
+    });
     frame();
 }
 
@@ -101,6 +116,14 @@ function frame() {
         myTank.forwardVelocity = 0;
         if (pressedKeys[KEY_DOWN] == true) { myTank.forwardVelocity -= 1; }
         if (pressedKeys[KEY_UP  ] == true) { myTank.forwardVelocity += 1; }
+
+        var isMoving = myTank.angularVelocity != 0 || myTank.forwardVelocity != 0;
+
+        if (isMoving || wasMovingLastFrame) {
+            socket.emit("c_on_tank_move", { index: myTankIndex, tank: myTank });
+        }
+
+        wasMovingLastFrame = isMoving;
     }
 
     // Update all the tanks' positions
@@ -189,5 +212,14 @@ function Tank(x, y, r, col) {
 
         // Reset the canvas to where it was before drawing the this
         ctx.restore();
+    }
+
+    this.overwrite = function(object) {
+        this.x = object.x;
+        this.y = object.y;
+        this.r = object.r;
+        this.col = object.col;
+        this.angularVelocity = object.angularVelocity;
+        this.forwardVelocity = object.forwardVelocity;
     }
 }
