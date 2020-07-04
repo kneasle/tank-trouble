@@ -12,6 +12,8 @@ var grid = { w: 1, h: 1 };
 var tanks = {};
 var serverTanks = {};
 
+var projectiles = {};
+
 var lastTime = Date.now();
 var wasMovingLastFrame = false;
 
@@ -20,6 +22,7 @@ var wasMovingLastFrame = false;
 const TANK_WIDTH = 0.32;
 const TANK_LENGTH = 0.42;
 const WALL_THICKNESS = 0.1;
+const BULLET_RADIUS = 0.05;
 
 // Display constants
 const TANK_OUTLINE_THICKNESS = 0.01;
@@ -34,9 +37,14 @@ const KEY_UP = 79;
 const KEY_RIGHT = 59;
 const KEY_DOWN = 76;
 
+const SHOOT_KEY = 88;
+
 // Gameplay constants
 const ROTATION_SPEED = 3; // rad/s
 const MOVEMENT_SPEED = 1; // square/s
+
+const BULLET_SPEED = 2;
+const BULLET_LIFETIME = 5; // seconds
 
 // Lag compensation/debug settings
 const SHOW_SERVER_TANKS = false;
@@ -80,9 +88,27 @@ function onLoad() {
     socket.on('s_on_tank_move', function(state) { updateServerTankState(state); });
         
     // Set up callbacks
-    window.onkeyup = function(e) { pressedKeys[e.keyCode] = false; }
-    window.onkeydown = function(e) { pressedKeys[e.keyCode] = true; }
-    window.onbeforeunload = function() { socket.close(); }
+    window.onkeyup = function(e) { pressedKeys[e.keyCode] = false; };
+    window.onkeydown = function(e) {
+        pressedKeys[e.keyCode] = true;
+
+        if (e.keyCode == SHOOT_KEY) {
+            var myTank = getMyTank();
+
+            // Calculate the direction and location of the tank barrel
+            var dX = Math.cos(myTank.r);
+            var dY = Math.sin(myTank.r);
+
+            projectiles.push({
+                x: myTank.x + dX * TANK_LENGTH * (0.5 + BARREL_OVERHANG),
+                y: myTank.y + dY * TANK_LENGTH * (0.5 + BARREL_OVERHANG),
+                velX: dX * BULLET_SPEED,
+                velY: dY * BULLET_SPEED,
+                despawn_time: Date.now() + BULLET_LIFETIME * 1000
+            });
+        }
+    };
+    window.onbeforeunload = function() { socket.close(); };
 
     // Set the loops going
     setInterval(updateServer, 50);
@@ -107,7 +133,6 @@ function frame() {
 
     if (myTank) {
         myTank.angularVelocity = 0;
-
         if (pressedKeys[KEY_LEFT ] == true) { myTank.angularVelocity -= 1; }
         if (pressedKeys[KEY_RIGHT] == true) { myTank.angularVelocity += 1; }
 
@@ -170,6 +195,19 @@ function frame() {
         tank.y += movementStep * Math.sin(tank.r);
     }
 
+    // Update all projectiles
+    for (var i = 0; i < projectiles.length; i++) {
+        var proj = projectiles[i];
+
+        proj.x += proj.velX * timeDelta;
+        proj.y += proj.velY * timeDelta;
+
+        if (Date.now() > proj.despawn_time) {
+            projectiles.splice(i, 1);
+            i--;
+        }
+    }
+
     /* ===== RENDERING ==== */
     // Clear the canvas
     ctx.clearRect(0, 0, viewRect.width, viewRect.height);
@@ -194,6 +232,14 @@ function frame() {
         for (const id in serverTanks) {
             drawTank(serverTanks[id], "rgba(0,0,0,0)");
         }
+    }
+
+    // Draw the bullets
+    ctx.fillStyle = "black";
+    for (var i = 0; i < projectiles.length; i++) {
+        ctx.beginPath();
+        ctx.arc(projectiles[i].x, projectiles[i].y, BULLET_RADIUS, 0, Math.PI * 2);
+        ctx.fill();
     }
 
     ctx.restore();
