@@ -60,12 +60,18 @@ def on_new_user_arrive(json, methods=['GET', 'POST']):
     
     tankLock.acquire()
     try:
+        # Pick the first available colour
+        cols = ['blue', 'lime', 'magenta', 'green', 'orange', 'red', 'yellow']
+        for t in tanks:
+            if t['col'] in cols:
+                cols.remove(t['col'])
+
         tanks.append(
             createTank(
                 random.random(),
                 random.random(),
                 random.random() * 8,
-                json['col'],
+                cols[0],
                 request.sid
             )
         )
