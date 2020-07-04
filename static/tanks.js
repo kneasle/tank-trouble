@@ -12,10 +12,7 @@ window.onkeydown = function(e) { pressedKeys[e.keyCode] = true; }
 // Variables for the game
 var grid = { w: 1, h: 1 };
 var myTankIndex = 0;
-var tanks = [
-    new Tank(0.5, 0.5, 1.7, "lime"),
-    new Tank(0.4, 1.7, 0.5, "blue")
-];
+var tanks = [];
 
 var lastTime = Date.now();
 
@@ -61,31 +58,50 @@ function onLoad() {
     socket = io.connect('http://' + document.domain + ':' + location.port);
 
     socket.on('connect', function() {
-        socket.emit('c_new_user', {
-            data: 'Hello World!'
-        })
+        socket.emit('c_new_user', {tank: tanks[myTankIndex], index: myTankIndex})
+    });
+
+    socket.on('s_broadcast', function(data) {
+        while(data.length > tanks.length) {
+            tanks.push(new Tank());
+        }
+
+        for(var i = 0; i < data.length; i++) {
+            tanks[i].x = data[i].x;
+            tanks[i].y = data[i].y;
+            tanks[i].r = data[i].r;
+            tanks[i].col = data[i].col;
+            tanks[i].angularVelocity = data[i].angularVelocity;
+            tanks[i].forwardVelocity = data[i].forwardVelocity;
+        }
     });
 
     frame();
 }
 
-// Called 60 time per second, render the game
+// Called once per frame
 function frame() {
     /* ===== UPDATES ===== */
     // Calculate the time since last frame for framerate independence
     var timeDelta = (Date.now() - lastTime) / 1000;
     lastTime = Date.now();
+    
+    // Debug: Change myTank if pressing 2 or 1
+    if (pressedKeys[49] == true) { myTankIndex = 0; }
+    if (pressedKeys[50] == true) { myTankIndex = 1; }
 
     // Control my tank
     var myTank = tanks[myTankIndex];
 
-    myTank.angularVelocity = 0;
-    if (pressedKeys[KEY_LEFT ] == true) { myTank.angularVelocity -= 1; }
-    if (pressedKeys[KEY_RIGHT] == true) { myTank.angularVelocity += 1; }
+    if (myTank) {
+        myTank.angularVelocity = 0;
+        if (pressedKeys[KEY_LEFT ] == true) { myTank.angularVelocity -= 1; }
+        if (pressedKeys[KEY_RIGHT] == true) { myTank.angularVelocity += 1; }
 
-    myTank.forwardVelocity = 0;
-    if (pressedKeys[KEY_DOWN] == true) { myTank.forwardVelocity -= 1; }
-    if (pressedKeys[KEY_UP  ] == true) { myTank.forwardVelocity += 1; }
+        myTank.forwardVelocity = 0;
+        if (pressedKeys[KEY_DOWN] == true) { myTank.forwardVelocity -= 1; }
+        if (pressedKeys[KEY_UP  ] == true) { myTank.forwardVelocity += 1; }
+    }
 
     // Update all the tanks' positions
     for (var i = 0; i < tanks.length; i++) {
@@ -129,10 +145,10 @@ function fillStrokeRect(x, y, w, h) {
 
 // Constructor for a new tank
 function Tank(x, y, r, col) {
-    this.x = x;
-    this.y = y;
-    this.r = r;
-    this.col = col;
+    this.x = x || 0;
+    this.y = y || 0;
+    this.r = r || 0;
+    this.col = col || "black";
 
     this.angularVelocity = 0;
     this.forwardVelocity = 0;
