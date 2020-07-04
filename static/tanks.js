@@ -88,6 +88,8 @@ function frame() {
     lastTime = Date.now();
 
     // Control my tank(s)
+    var isMoving = false;
+
     for (var i = 0; i < tanks.length; i++) {
         if (tanks[i].sid == socket.id) {
             tanks[i].angularVelocity = 0;
@@ -99,14 +101,14 @@ function frame() {
             if (pressedKeys[KEY_UP  ] == true) { tanks[i].forwardVelocity += 1; }
         }
 
-        var isMoving = myTank.angularVelocity != 0 || myTank.forwardVelocity != 0;
-
-        if (isMoving || wasMovingLastFrame) {
-            socket.emit("c_on_tank_move", tanks);
-        }
-
-        wasMovingLastFrame = isMoving;
+        isMoving = isMoving || tanks[i].angularVelocity != 0 || tanks[i].forwardVelocity != 0;
     }
+
+    if (isMoving || wasMovingLastFrame) {
+        // Don't emit to the server
+    }
+
+    wasMovingLastFrame = isMoving;
 
     // Update all the tanks' positions
     for (var i = 0; i < tanks.length; i++) {
