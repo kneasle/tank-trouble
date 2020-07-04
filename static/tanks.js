@@ -87,6 +87,21 @@ function onLoad() {
     });
     socket.on('s_broadcast', function(state) { updateServerTankState(state); });
     socket.on('s_on_tank_move', function(state) { updateServerTankState(state); });
+    socket.on('s_spawn_projectile', function(newProj) {
+        // Check if the projectile is new and isn't one of ours
+        if (!(newProj.id in projectiles)) {
+            var proj = newProj.projectile;
+
+            // Move the projectile to where it should be
+            var timeSinceSpawn = Date.now() - proj.spawnTime;
+
+            proj.x += proj.velX * timeSinceSpawn / 1000;
+            proj.y += proj.velY * timeSinceSpawn / 1000;
+
+            // Add the projectile
+            projectiles[newProj.id] = proj;
+        }
+    });
         
     // Set up callbacks
     window.onkeyup = function(e) { pressedKeys[e.keyCode] = false; };
@@ -100,13 +115,20 @@ function onLoad() {
             var dX = Math.cos(myTank.r);
             var dY = Math.sin(myTank.r);
 
-            projectiles[socket.id + "|" + nextProjectileId] = {
+            var newId = socket.id + "|" + nextProjectileId;
+
+            projectiles[newId] = {
                 x: myTank.x + dX * TANK_LENGTH * (0.5 + BARREL_OVERHANG),
                 y: myTank.y + dY * TANK_LENGTH * (0.5 + BARREL_OVERHANG),
                 velX: dX * BULLET_SPEED,
                 velY: dY * BULLET_SPEED,
                 spawnTime: Date.now()
             };
+
+            socket.emit("c_spawn_projectile", {
+                id: newId,
+                projectile: projectiles[newId]
+            });
 
             nextProjectileId += 1;
         }

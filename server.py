@@ -100,6 +100,10 @@ def on_tank_move(updated_tank, methods=['GET', 'POST']):
     finally:
         tankLock.release()
 
+@socketio.on('c_spawn_projectile')
+def on_spawn_projectile(data, methods=['GET', 'POST']):
+    socketio.emit('s_spawn_projectile', data)
+
 if __name__ == '__main__':
     # Spawn separate thread to broadcast the state of the game to avoid divergence
     broadcast_thread = threading.Thread(target=broadcast_loop)
