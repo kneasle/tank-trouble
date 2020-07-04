@@ -15,7 +15,7 @@ var serverTanks = [];
 var lastTime = Date.now();
 var wasMovingLastFrame = false;
 
-// ===== CONSTANTS =====
+/* ===== CONSTANTS ===== */
 // Constants that are needed by the physics engine
 const TANK_WIDTH = 0.32;
 const TANK_LENGTH = 0.42;
@@ -198,7 +198,7 @@ function frame() {
 
 
 
-// ===== STATE-UPDATING CODE =====
+/* ===== STATE-UPDATING CODE ===== */
 function updateAllTankState(state) {
     tanks = state;
 }
@@ -210,7 +210,7 @@ function updateServerTankState(state) {
 
 
 
-// ===== DRAWING CODE =====
+/* ===== DRAWING CODE ===== */
 // Draw a rectangle with both a fill and a stroke
 function fillStrokeRect(x, y, w, h) {
     ctx.fillRect(x, y, w, h);
@@ -259,7 +259,7 @@ function drawTank(tank, fillOverride) {
 
 
 
-// ===== UTILITIES =====
+/* ===== UTILITIES ===== */
 function lerp(a, b, t) {
     return (1 - t) * a + t * b;
 }
