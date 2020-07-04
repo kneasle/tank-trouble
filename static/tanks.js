@@ -97,23 +97,17 @@ function frame() {
     var timeDelta = (Date.now() - lastTime) / 1000;
     lastTime = Date.now();
 
-    // Control my tank
-    var myTank = null;
-
+    // Control my tank(s)
     for (var i = 0; i < tanks.length; i++) {
         if (tanks[i].sid == socket.id) {
-            myTank = tanks[i];
+            tanks[i].angularVelocity = 0;
+            if (pressedKeys[KEY_LEFT ] == true) { tanks[i].angularVelocity -= 1; }
+            if (pressedKeys[KEY_RIGHT] == true) { tanks[i].angularVelocity += 1; }
+
+            tanks[i].forwardVelocity = 0;
+            if (pressedKeys[KEY_DOWN] == true) { tanks[i].forwardVelocity -= 1; }
+            if (pressedKeys[KEY_UP  ] == true) { tanks[i].forwardVelocity += 1; }
         }
-    }
-
-    if (myTank) {
-        myTank.angularVelocity = 0;
-        if (pressedKeys[KEY_LEFT ] == true) { myTank.angularVelocity -= 1; }
-        if (pressedKeys[KEY_RIGHT] == true) { myTank.angularVelocity += 1; }
-
-        myTank.forwardVelocity = 0;
-        if (pressedKeys[KEY_DOWN] == true) { myTank.forwardVelocity -= 1; }
-        if (pressedKeys[KEY_UP  ] == true) { myTank.forwardVelocity += 1; }
 
         var isMoving = myTank.angularVelocity != 0 || myTank.forwardVelocity != 0;
 
