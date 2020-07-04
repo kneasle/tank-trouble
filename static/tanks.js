@@ -63,28 +63,18 @@ function onLoad() {
         socket.emit('c_on_new_user_arrive', {col: cols[Math.floor(Math.random() * cols.length)]})
     });
 
-    socket.on('s_on_new_user_arrive', function(state) {
-        updateAllTankState(state);
-    });
+    socket.on('s_on_new_user_arrive', function(state) { updateAllTankState(state); });
 
-    socket.on('s_on_user_leave', function(state) {
-        updateAllTankState(state);
-    });
+    socket.on('s_on_user_leave', function(state) { updateAllTankState(state); });
 
-    socket.on('s_broadcast', function(state) {
-        updateOtherTanksState(state);
-    });
+    socket.on('s_broadcast', function(state) { updateOtherTanksState(state); });
 
-    socket.on('s_on_tank_move', function(data) {
-        updateOtherTanksState(state);
-    });
+    socket.on('s_on_tank_move', function(data) { updateOtherTanksState(state); });
         
     // Set up callbacks
     window.onkeyup = function(e) { pressedKeys[e.keyCode] = false; }
     window.onkeydown = function(e) { pressedKeys[e.keyCode] = true; }
-    window.onbeforeunload = function() {
-        socket.close();
-    }
+    window.onbeforeunload = function() { socket.close(); }
 
     // Run the first frame
     frame();
