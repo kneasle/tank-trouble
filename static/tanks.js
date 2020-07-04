@@ -12,7 +12,8 @@ var grid = { w: 1, h: 1 };
 var tanks = {};
 var serverTanks = {};
 
-var projectiles = [];
+var projectiles = {};
+var nextProjectileId = 0;
 
 var lastTime = Date.now();
 var wasMovingLastFrame = false;
@@ -99,13 +100,15 @@ function onLoad() {
             var dX = Math.cos(myTank.r);
             var dY = Math.sin(myTank.r);
 
-            projectiles.push({
+            projectiles[socket.id + "|" + nextProjectileId] = {
                 x: myTank.x + dX * TANK_LENGTH * (0.5 + BARREL_OVERHANG),
                 y: myTank.y + dY * TANK_LENGTH * (0.5 + BARREL_OVERHANG),
                 velX: dX * BULLET_SPEED,
                 velY: dY * BULLET_SPEED,
-                despawn_time: Date.now() + BULLET_LIFETIME * 1000
-            });
+                spawnTime: Date.now()
+            };
+
+            nextProjectileId += 1;
         }
     };
     window.onbeforeunload = function() { socket.close(); };
@@ -196,16 +199,21 @@ function frame() {
     }
 
     // Update all projectiles
-    for (var i = 0; i < projectiles.length; i++) {
-        var proj = projectiles[i];
+    var projectilesToDestroy = [];
+
+    for (const id in projectiles) {
+        var proj = projectiles[id];
 
         proj.x += proj.velX * timeDelta;
         proj.y += proj.velY * timeDelta;
 
-        if (Date.now() > proj.despawn_time) {
-            projectiles.splice(i, 1);
-            i--;
+        if (Date.now() > proj.spawnTime + BULLET_LIFETIME * 1000) {
+            projectilesToDestroy.push(id);
         }
+    }
+
+    while (projectilesToDestroy.length > 0) {
+        delete projectiles[projectilesToDestroy.pop()];
     }
 
     /* ===== RENDERING ==== */
@@ -236,9 +244,9 @@ function frame() {
 
     // Draw the bullets
     ctx.fillStyle = "black";
-    for (var i = 0; i < projectiles.length; i++) {
+    for (const id in projectiles) {
         ctx.beginPath();
-        ctx.arc(projectiles[i].x, projectiles[i].y, BULLET_RADIUS, 0, Math.PI * 2);
+        ctx.arc(projectiles[id].x, projectiles[id].y, BULLET_RADIUS, 0, Math.PI * 2);
         ctx.fill();
     }
 
