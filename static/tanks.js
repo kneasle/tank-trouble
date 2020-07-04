@@ -9,8 +9,8 @@ var pressedKeys = {};
 
 // Variables for the game
 var grid = { w: 1, h: 1 };
-var tanks = [];
-var serverTanks = [];
+var tanks = {};
+var serverTanks = {};
 
 var lastTime = Date.now();
 var wasMovingLastFrame = false;
@@ -86,7 +86,7 @@ function onLoad() {
 
 // Called slower than the frames so that the server isn't swamped with updates
 function updateServer() {
-    socket.emit("c_on_tank_move", tanks);
+    socket.emit("c_on_tank_move", getMyTank());
 }
 
 // Called once per frame
@@ -96,41 +96,40 @@ function frame() {
     var timeDelta = (Date.now() - lastTime) / 1000;
     lastTime = Date.now();
 
-    // Control my tank(s)
-    var isMoving = false;
+    // Control my tank
+    var myTank = getMyTank();
 
-    for (var i = 0; i < tanks.length; i++) {
-        if (tanks[i].sid == socket.id) {
-            tanks[i].angularVelocity = 0;
-            if (pressedKeys[KEY_LEFT ] == true) { tanks[i].angularVelocity -= 1; }
-            if (pressedKeys[KEY_RIGHT] == true) { tanks[i].angularVelocity += 1; }
+    if (myTank) {
+        myTank.angularVelocity = 0;
 
-            tanks[i].forwardVelocity = 0;
-            if (pressedKeys[KEY_DOWN] == true) { tanks[i].forwardVelocity -= 1; }
-            if (pressedKeys[KEY_UP  ] == true) { tanks[i].forwardVelocity += 1; }
+        if (pressedKeys[KEY_LEFT ] == true) { myTank.angularVelocity -= 1; }
+        if (pressedKeys[KEY_RIGHT] == true) { myTank.angularVelocity += 1; }
+
+        myTank.forwardVelocity = 0;
+        if (pressedKeys[KEY_DOWN] == true) { myTank.forwardVelocity -= 1; }
+        if (pressedKeys[KEY_UP  ] == true) { myTank.forwardVelocity += 1; }
+
+        var isMoving = myTank.angularVelocity != 0 || myTank.forwardVelocity != 0;
+
+        if (isMoving || wasMovingLastFrame) {
+            // Don't emit to the server, because doing so every frame will overload the server
         }
 
-        isMoving = isMoving || tanks[i].angularVelocity != 0 || tanks[i].forwardVelocity != 0;
+        wasMovingLastFrame = isMoving;
     }
-
-    if (isMoving || wasMovingLastFrame) {
-        // Don't emit to the server, because doing so every frame will overload the server
-    }
-
-    wasMovingLastFrame = isMoving;
 
     // Update all the tanks' positions
-    for (var i = 0; i < tanks.length; i++) {
-        var tank = tanks[i];
+    for (const id in tanks) {
+        var tank = tanks[id];
 
-        if (tanks[i].sid == socket.id) {
+        if (id == socket.id) {
             // How to update the position of currently controlled tanks if the server tells us 
             // something different.  For now do nothing - the client knows best.
         } else {
             // How to update the position of other tanks according to what the server says.
-            if (i < serverTanks.length) {
-                var sTank = serverTanks[i];
+            var sTank = serverTanks[id];
 
+            if (sTank) {
                 // Copy across the velocities, so that the tank will do something approximately
                 // what the server is saying - but that is smooth regardless.
                 tank.angularVelocity = sTank.angularVelocity;
@@ -173,7 +172,7 @@ function frame() {
     // square of the grid
     ctx.save();
     ctx.translate(viewRect.width / 2, viewRect.height / 2);
-    ctx.scale(400, 400);
+    ctx.scale(200, 200);
     ctx.translate(-0.5, -0.5);
 
     // Draw the grid
@@ -181,13 +180,13 @@ function frame() {
     ctx.strokeRect(0, 0, 1, 1);
 
     // Draw the tanks
-    for (var i = 0; i < tanks.length; i++) {
-        drawTank(tanks[i]);
+    for (const id in tanks) {
+        drawTank(tanks[id]);
     }
     
     if (SHOW_SERVER_TANKS) {
-        for (var i = 0; i < serverTanks.length; i++) {
-            drawTank(serverTanks[i], "rgba(0,0,0,0)");
+        for (const id in serverTanks) {
+            drawTank(serverTanks[id], "rgba(0,0,0,0)");
         }
     }
 
@@ -264,4 +263,8 @@ function drawTank(tank, fillOverride) {
 /* ===== UTILITIES ===== */
 function lerp(a, b, t) {
     return (1 - t) * a + t * b;
+}
+
+function getMyTank() {
+    return tanks[socket.id];
 }

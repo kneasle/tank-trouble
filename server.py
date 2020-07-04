@@ -10,13 +10,12 @@ import threading
 import time
 
 # Global game state
-def createTank(x, y, r, col, sid):
+def createTank(x, y, r, col):
     return {
         'x': x,
         'y': y,
         'r': r,
         'col': col,
-        'sid': sid,
         'angularVelocity': 0,
         'forwardVelocity': 0
     }
@@ -24,7 +23,7 @@ def createTank(x, y, r, col, sid):
 # A lock to make sure that only one thread can access the tanks array at one time, to avoid
 # painful race conditions when people leave the server
 tankLock = threading.Lock()
-tanks = []
+tanks = {}
 
 # Initialise the flask-socketio server
 app = Flask(__name__)
@@ -62,18 +61,15 @@ def on_new_user_arrive(json, methods=['GET', 'POST']):
     try:
         # Pick the first available colour
         cols = ['blue', 'lime', 'magenta', 'green', 'orange', 'red', 'yellow']
-        for t in tanks:
+        for t in tanks.values():
             if t['col'] in cols:
                 cols.remove(t['col'])
 
-        tanks.append(
-            createTank(
-                random.random(),
-                random.random(),
-                random.random() * 8,
-                cols[0],
-                request.sid
-            )
+        tanks[request.sid] = createTank(
+            random.random(),
+            random.random(),
+            random.random() * 8,
+            cols[0]
         )
 
         socketio.emit('s_on_new_user_arrive', tanks)
@@ -87,12 +83,7 @@ def on_user_leave_2(methods=['GET', 'POST']):
 
     tankLock.acquire()
     try:
-        i = 0
-        while i < len(tanks):
-            if tanks[i]['sid'] == request.sid:
-                del tanks[i]
-            else:
-                i += 1
+        del tanks[request.sid]
 
         socketio.emit('s_on_user_leave', tanks)
     finally:
@@ -100,12 +91,10 @@ def on_user_leave_2(methods=['GET', 'POST']):
 
 
 @socketio.on('c_on_tank_move')
-def on_tank_move(updated_tanks, methods=['GET', 'POST']):
+def on_tank_move(updated_tank, methods=['GET', 'POST']):
     tankLock.acquire()
     try:
-        for i in range(len(updated_tanks)):
-            if tanks[i]['sid'] == request.sid:
-                tanks[i] = updated_tanks[i]
+        tanks[request.sid] = updated_tank;
 
         socketio.emit('s_on_tank_move', tanks)
     finally:
