@@ -20,7 +20,10 @@ def createTank(x, y, r, col, sid):
         'angularVelocity': 0,
         'forwardVelocity': 0
     }
-    
+
+# A lock to make sure that only one thread can access the tanks array at one time, to avoid
+# painful race conditions when people leave the server
+tankLock = threading.Lock()
 tanks = []
 
 # Initialise the flask-socketio server
@@ -55,40 +58,52 @@ def sessions():
 def on_new_user_arrive(json, methods=['GET', 'POST']):
     print('recieved new user', request.sid, str(json))
     
-    tanks.append(
-        createTank(
-            random.random(),
-            random.random(),
-            random.random() * 8,
-            json['col'],
-            request.sid
+    tankLock.acquire()
+    try:
+        tanks.append(
+            createTank(
+                random.random(),
+                random.random(),
+                random.random() * 8,
+                json['col'],
+                request.sid
+            )
         )
-    )
 
-    socketio.emit('s_on_new_user_arrive', tanks)
+        socketio.emit('s_on_new_user_arrive', tanks)
+    finally:
+        tankLock.release()
 
 
 @socketio.on('disconnect')
 def on_user_leave_2(methods=['GET', 'POST']):
     print(f'user leaving {request.sid}')
-    
-    i = 0
-    while i < len(tanks):
-        if tanks[i]['sid'] == request.sid:
-            del tanks[i]
-        else:
-            i += 1
 
-    socketio.emit('s_on_user_leave', tanks)
+    tankLock.acquire()
+    try:
+        i = 0
+        while i < len(tanks):
+            if tanks[i]['sid'] == request.sid:
+                del tanks[i]
+            else:
+                i += 1
+
+        socketio.emit('s_on_user_leave', tanks)
+    finally:
+        tankLock.release()
 
 
 @socketio.on('c_on_tank_move')
 def on_tank_move(updated_tanks, methods=['GET', 'POST']):
-    for i in range(len(updated_tanks)):
-        if tanks[i]['sid'] == request.sid:
-            tanks[i] = updated_tanks[i]
+    tankLock.acquire()
+    try:
+        for i in range(len(updated_tanks)):
+            if tanks[i]['sid'] == request.sid:
+                tanks[i] = updated_tanks[i]
 
-    socketio.emit('s_on_tank_move', tanks)
+        socketio.emit('s_on_tank_move', tanks)
+    finally:
+        tankLock.release()
 
 if __name__ == '__main__':
     # Spawn separate thread to broadcast the state of the game to avoid divergence
