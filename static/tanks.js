@@ -12,7 +12,7 @@ var grid = { w: 1, h: 1 };
 var tanks = {};
 var serverTanks = {};
 
-var projectiles = {};
+var projectiles = [];
 
 var lastTime = Date.now();
 var wasMovingLastFrame = false;
