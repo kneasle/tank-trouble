@@ -166,8 +166,8 @@ function frame() {
         var movementStep = tank.forwardVelocity * MOVEMENT_SPEED * timeDelta;
 
         tank.r += tank.angularVelocity * timeDelta * ROTATION_SPEED;
-        tank.x -= movementStep * Math.sin(-tank.r);
-        tank.y -= movementStep * Math.cos(-tank.r);
+        tank.x += movementStep * Math.cos(tank.r);
+        tank.y += movementStep * Math.sin(tank.r);
     }
 
     /* ===== RENDERING ==== */
@@ -225,7 +225,7 @@ function drawTank(tank, fillOverride) {
     // Save the canvas and move it so that the tank is at (0, 0) looking upwards
     ctx.save();
     ctx.translate(tank.x, tank.y);
-    ctx.rotate(tank.r);
+    ctx.rotate(tank.r + Math.PI / 2);
 
     // Setup the right colours and line widths
     ctx.strokeStyle = "black";
