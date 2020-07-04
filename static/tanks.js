@@ -110,7 +110,7 @@ function frame() {
     }
 
     if (isMoving || wasMovingLastFrame) {
-        // Don't emit to the server
+        // Don't emit to the server, because doing so every frame will overload the server
     }
 
     wasMovingLastFrame = isMoving;
