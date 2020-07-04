@@ -2,6 +2,7 @@
 
 from flask import Flask, render_template
 from flask_socketio import SocketIO
+import logging
 import threading
 import time
 
@@ -25,6 +26,9 @@ tanks = [
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
 socketio = SocketIO(app, async_mode='threading')
+
+# Stop the logger from continually printing GET requests
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 
 # Broadcast the state of the game every so often to avoid diversion
