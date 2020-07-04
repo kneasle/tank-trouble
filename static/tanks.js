@@ -66,7 +66,7 @@ function onLoad() {
     socket.on('s_on_new_user_arrive', function(state) { updateAllTankState(state); });
     socket.on('s_on_user_leave', function(state) { updateAllTankState(state); });
     socket.on('s_broadcast', function(state) { updateOtherTanksState(state); });
-    socket.on('s_on_tank_move', function(data) { updateOtherTanksState(state); });
+    socket.on('s_on_tank_move', function(state) { updateOtherTanksState(state); });
         
     // Set up callbacks
     window.onkeyup = function(e) { pressedKeys[e.keyCode] = false; }
