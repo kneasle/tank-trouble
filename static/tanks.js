@@ -73,8 +73,15 @@ function onLoad() {
     window.onkeydown = function(e) { pressedKeys[e.keyCode] = true; }
     window.onbeforeunload = function() { socket.close(); }
 
-    // Run the first frame
+    // Set the loops going
+    setInterval(updateServer, 50);
+    
     frame();
+}
+
+// Called slower than the frames so that the server isn't swamped with updates
+function updateServer() {
+    socket.emit("c_on_tank_move", tanks);
 }
 
 // Called once per frame

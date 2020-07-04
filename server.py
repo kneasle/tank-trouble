@@ -2,6 +2,7 @@
 
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO
+from engineio.payload import Payload
 
 import random
 import logging
@@ -27,6 +28,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
 socketio = SocketIO(app, async_mode='threading')
 
+Payload.max_decode_packets = 15
+
 # Stop the logger from continually printing GET requests
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
@@ -39,7 +42,7 @@ def broadcast_loop():
     while True:
         broadcast()
 
-        time.sleep(0.02)
+        time.sleep(0.5)
 
 # Function called when the browser loads the root page in the URL
 @app.route('/')
@@ -85,7 +88,7 @@ def on_tank_move(updated_tanks, methods=['GET', 'POST']):
         if tanks[i]['sid'] == request.sid:
             tanks[i] = updated_tanks[i]
 
-    # socketio.emit('s_on_tank_move', tanks)
+    socketio.emit('s_on_tank_move', tanks)
 
 if __name__ == '__main__':
     # Spawn separate thread to broadcast the state of the game to avoid divergence
