@@ -38,6 +38,7 @@ const KEY_DOWN = 76;
 
 // Gameplay constants
 const ROTATION_SPEED = 3; // rad/s
+const MOVEMENT_SPEED = 1; // square/s
 
 
 // Called when the document loads
@@ -130,9 +131,11 @@ function frame() {
     for (var i = 0; i < tanks.length; i++) {
         var tank = tanks[i];
 
+        var movementStep = tank.forwardVelocity * MOVEMENT_SPEED * timeDelta;
+
         tank.r += tank.angularVelocity * timeDelta * ROTATION_SPEED;
-        tank.x -= tank.forwardVelocity * Math.sin(-tank.r) * timeDelta;
-        tank.y -= tank.forwardVelocity * Math.cos(-tank.r) * timeDelta;
+        tank.x -= movementStep * Math.sin(-tank.r);
+        tank.y -= movementStep * Math.cos(-tank.r);
     }
 
     /* ===== RENDERING ==== */
