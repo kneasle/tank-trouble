@@ -238,6 +238,20 @@ function frame() {
         delete projectiles[projectilesToDestroy.pop()];
     }
 
+    // Detect when my tank is destroyed
+    for (const id in projectiles) {
+        var proj = projectiles[id];
+        var myTank = getMyTank();
+
+        var tankSpaceCoord = inverseTransformCoord(proj, myTank, myTank.r);
+
+        if (Math.abs(tankSpaceCoord.x) <= TANK_LENGTH / 2
+         && Math.abs(tankSpaceCoord.y) <= TANK_WIDTH / 2
+        ) {
+            console.log("BOOM");
+        }
+    }
+
     /* ===== RENDERING ==== */
     // Clear the canvas
     ctx.clearRect(0, 0, viewRect.width, viewRect.height);
@@ -334,6 +348,30 @@ function drawTank(tank, fillOverride) {
     ctx.restore();
 }
 
+
+
+
+
+/* ===== COLLISION ENGINE CODE ===== */
+function transformCoord(coord, origin, rotation) {
+    var rotatedX = coord.x * Math.cos(rotation) - coord.y * Math.sin(rotation);
+    var rotatedY = coord.x * Math.sin(rotation) + coord.y * Math.cos(rotation);
+
+    return {
+        x: rotatedX + origin.x,
+        y: rotatedY + origin.y
+    };
+}
+
+function inverseTransformCoord(coord, origin, rotation) {
+    var translatedX = coord.x - origin.x;
+    var translatedY = coord.y - origin.y;
+
+    return {
+        x: translatedX * Math.cos(-rotation) - translatedY * Math.sin(-rotation),
+        y: translatedX * Math.sin(-rotation) + translatedY * Math.cos(-rotation)
+    };
+}
 
 
 
