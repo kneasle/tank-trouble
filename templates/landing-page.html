@@ -41,5 +41,10 @@
   </div>
   <div style="margin-top: 20px;"><button type="button" onclick="submit()">Let's play!</button></div>
 </body>
+<script>
+  function submit() {
+    location.assign("tanks?name=" + document.getElementById("name").value + "&colour=" + document.getElementById("colour").value)
+  }
+</script>
 
 </html>
