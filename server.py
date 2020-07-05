@@ -36,6 +36,16 @@ Payload.max_decode_packets = 15
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 
+# Function called when the browser loads the root page in the URL
+@app.route('/')
+def display_landing_page():
+    return render_template('landing-page.html')
+
+@app.route('/tanks')
+def display_tanks():
+    return render_template('tanks.html')
+
+
 # Broadcast the state of the game every so often to avoid diversion
 def broadcast():
     socketio.emit('s_broadcast', tanks)
@@ -45,11 +55,6 @@ def broadcast_loop():
         broadcast()
 
         time.sleep(0.5)
-
-# Function called when the browser loads the root page in the URL
-@app.route('/')
-def sessions():
-    return render_template('tanks.html')
 
 
 # Called when a new player arrives

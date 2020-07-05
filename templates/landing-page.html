@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>TT name choice</title>
+  <style>
+    body {
+      text-align: center;
+    }
+
+    .grid-container {
+      display: inline-grid;
+      grid-template-columns: auto auto;
+      align-items: center;
+      row-gap: 10px;
+      column-gap: 5px;
+      margin-top: 20px;
+    }
+
+    .grid-item-left {
+      font-size: 20px;
+      text-align: right;
+    }
+
+    .grid-item-right {
+      text-align: left;
+    }
+  </style>
+</head>
+
+<body>
+  <div style="font-size: 60px; font-size: 4vw; font-weight: bold; margin-top: 40px;">Congrats, you made it to our Tank
+    Trubble server!</div>
+  <div style="font-size: 40px; margin-top: 20px;">Just set yourself up below and you're ready to go :)</div>
+  <div class="grid-container">
+    <div class="grid-item-left">Username:</div>
+    <input id="name" type="text" class="grid-item-right" placeholder="Your username">
+    <div class="grid-item-left">Colour:</div>
+    <input id="colour" type="color" class="grid-item-right">
+  </div>
+  <div style="margin-top: 20px;"><button type="button" onclick="submit()">Let's play!</button></div>
+</body>
+<script>
+  function submit() {
+    location.assign("tanks?name=" + document.getElementById("name").value + "&colour=" + document.getElementById("colour").value)
+  }
+</script>
+
+</html>
