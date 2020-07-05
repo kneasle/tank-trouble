@@ -43,7 +43,7 @@
 </body>
 <script>
   function submit() {
-    location.assign("tanks?name=" + document.getElementById("name").value + "&colour=" + document.getElementById("colour").value)
+    location.assign("tanks?name=" + document.getElementById("name").value + "&colour=" + document.getElementById("colour").value.substring(1));
   }
 </script>
 
