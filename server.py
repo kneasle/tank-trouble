@@ -99,7 +99,7 @@ def on_user_leave_2(methods=['GET', 'POST']):
 def on_tank_move(updated_tank, methods=['GET', 'POST']):
     tankLock.acquire()
     try:
-        tanks[request.sid] = updated_tank;
+        tanks[request.sid] = updated_tank
 
         socketio.emit('s_on_tank_move', tanks)
     finally:
