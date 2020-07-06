@@ -33,11 +33,7 @@ def generate_maze(size_x, size_y, density=0.9, print_map=False):
                 if node.group_id == dead_group_id:
                     node.group_id = parent_nodes[0].group_id
 
-    enabled_walls = []
-
-    for i in walls:
-        if i.enabled:
-            enabled_walls.append(i)
+    enabled_walls = list(filter(lambda wall: wall.enabled, walls))
 
     random.shuffle(enabled_walls)
 
