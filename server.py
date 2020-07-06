@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-from flask import Flask, render_template, request
-from flask_socketio import SocketIO
-from engineio.payload import Payload
-
 import random
 import logging
 import threading
 import time
+
+from flask import Flask, render_template, request
+from flask_socketio import SocketIO
+from engineio.payload import Payload
 
 from game_state import GameState
 
