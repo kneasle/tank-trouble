@@ -50,7 +50,7 @@ def broadcast_loop():
 
 # Called when a new player arrives
 @socketio.on('c_on_new_user_arrive')
-def on_new_user_arrive(json, methods=['GET', 'POST']):
+def on_new_user_arrive(json):
     print('recieved new user', request.sid, str(json))
     
     tankLock.acquire()
@@ -70,7 +70,7 @@ def on_new_user_arrive(json, methods=['GET', 'POST']):
 
 
 @socketio.on('disconnect')
-def on_user_leave_2(methods=['GET', 'POST']):
+def on_user_leave_2():
     print(f'user leaving {request.sid}')
 
     tankLock.acquire()
@@ -83,7 +83,7 @@ def on_user_leave_2(methods=['GET', 'POST']):
 
 
 @socketio.on('c_on_tank_move')
-def on_tank_move(updated_tank, methods=['GET', 'POST']):
+def on_tank_move(updated_tank):
     tankLock.acquire()
     try:
         game_state.update_tank(request.sid, updated_tank)
@@ -93,7 +93,7 @@ def on_tank_move(updated_tank, methods=['GET', 'POST']):
         tankLock.release()
 
 @socketio.on('c_on_tank_explode')
-def on_tank_explode(data, method=['GET', 'POST']):
+def on_tank_explode(data):
     socketio.emit('s_on_tank_explode', { 'tank': request.sid, 'projectile': data['projectile'] })
 
     tankLock.acquire()
@@ -103,7 +103,7 @@ def on_tank_explode(data, method=['GET', 'POST']):
         tankLock.release()
 
 @socketio.on('c_spawn_projectile')
-def on_spawn_projectile(data, methods=['GET', 'POST']):
+def on_spawn_projectile(data):
     socketio.emit('s_spawn_projectile', data)
 
 if __name__ == '__main__':
