@@ -1,7 +1,7 @@
 import random
 
 
-def generate_maze(size_x, size_y):
+def generate_maze(size_x, size_y, print_map=False):
     nodes = [Node(i + j * size_x, (i, j)) for j in range(size_y)
              for i in range(size_x)]
 
@@ -13,7 +13,7 @@ def generate_maze(size_x, size_y):
         for i in range(size_x)
     ]
 
-    random.shuffle(walls)
+    # random.shuffle(walls)
 
     for wall in walls:
         if wall.orientation == "r":
@@ -43,6 +43,28 @@ def generate_maze(size_x, size_y):
         if wall.orientation == "b":
             bottom_walls[wall.position[1]][wall.position[0]] = wall.enabled
 
+    if print_map:
+        print("+---" * size_x + "+")
+
+        for y in range(size_y):
+            print("|   ", end="")
+            for x in range(size_x - 1):
+                if right_walls[y][x]:
+                    print("|   ", end="")
+                else:
+                    print("    ", end="")
+            print("|")
+
+            if y != size_y - 1:
+                for x in range(size_x):
+                    if bottom_walls[y][x]:
+                        print("+---", end="")
+                    else:
+                        print("+   ", end="")
+                print("+")
+
+        print("+---" * size_x + "+")
+
     return (right_walls, bottom_walls)
 
 
@@ -60,4 +82,4 @@ class Wall:
 
 
 if __name__ == "__main__":
-    print(generate_maze(4, 4))
+    print(generate_maze(4, 4, print_map=True))
