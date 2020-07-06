@@ -25,7 +25,7 @@ class GameState:
         tags = []
 
         for tag in self._tanks:
-            if self._tanks[tag].sid == sid:
+            if self._tanks[tag]._js_data['sid'] == sid:
                 tags.append(tag)
 
         return tags

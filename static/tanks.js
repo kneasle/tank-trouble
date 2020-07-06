@@ -3,6 +3,7 @@ var canvas;
 var ctx;
 var viewRect;
 var socket;
+var params;
 
 // Key tracking
 var pressedKeys = {};
@@ -54,6 +55,9 @@ const LATENCY_COMPENSATION_LERP_FACTOR = 12;
 
 // Called when the document loads
 function onLoad() {
+    // Read the params from the URL
+    params = getParams(window.location.href);
+
     // Get the canvas element and its drawing context
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
@@ -72,8 +76,6 @@ function onLoad() {
 
     // When the connection is established, tell the server that a new player has arrived
     socket.on('connect', function() {
-        params = getParams(window.location.href);
-
         socket.emit('c_on_new_user_arrive', {
             colour: '#' + params.colour,
             name: params.name
@@ -169,7 +171,9 @@ function onLoad() {
 
 // Called slower than the frames so that the server isn't swamped with updates
 function updateServer() {
-    socket.emit("c_on_tank_move", getMyTank());
+    if (getMyTank()) {
+        socket.emit("c_on_tank_move", { tag: params.name, newState: getMyTank() });
+    }
 }
 
 // Called once per frame
@@ -204,7 +208,7 @@ function frame() {
     for (const id in tanks) {
         var tank = tanks[id];
 
-        if (id == socket.id) {
+        if (id == params.name) {
             // How to update the position of currently controlled tanks if the server tells us
             // something different.  For now do nothing - the client knows best.
         } else {
@@ -296,7 +300,7 @@ function frame() {
                 myTank.isAlive = false;
                 myTank.destructionTime = Date.now();
 
-                socket.emit('c_on_tank_explode', {projectile: id});
+                socket.emit('c_on_tank_explode', { tankTag: params.name, projectileTag: id });
 
                 delete projectiles[id];
                 break;
@@ -440,7 +444,7 @@ function lerp(a, b, t) {
 }
 
 function getMyTank() {
-    return tanks[socket.id];
+    return tanks[params.name];
 }
 
 /**

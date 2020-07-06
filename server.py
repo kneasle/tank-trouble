@@ -98,7 +98,7 @@ def on_tank_explode(data):
 
     tankLock.acquire()
     try:
-        game_state.explode_tank(data['tag'])
+        game_state.explode_tank(data['tankTag'])
 
         num_tanks_alive = len(game_state.tanks_still_alive())
         if num_tanks_alive == 1:
