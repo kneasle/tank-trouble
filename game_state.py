@@ -5,7 +5,7 @@ class GameState:
         self._tanks = {}
 
     def add_tank(self, x, y, r, colour, name, sid):
-        self._tanks[sid] = Tank(x, y, r, colour, name, sid)
+        self._tanks[name] = Tank(x, y, r, colour, name, sid)
 
     def update_tank(self, tag, tank_json):
         self._tanks[tag].update_from_json(tank_json)
