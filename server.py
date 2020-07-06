@@ -83,12 +83,12 @@ def on_user_leave_2():
 
 
 @socketio.on('c_on_tank_move')
-def on_tank_move(updated_tank):
+def on_tank_move(tank_data):
     tankLock.acquire()
     try:
-        game_state.update_tank(request.sid, updated_tank)
+        game_state.update_tank(tank_data['tag'], tank_data['newState'])
 
-        socketio.emit('s_on_tank_move', game_state.tanks_json())
+        socketio.emit('s_on_tank_move', tank_data)
     finally:
         tankLock.release()
 

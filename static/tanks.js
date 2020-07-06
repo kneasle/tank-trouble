@@ -91,7 +91,14 @@ function onLoad() {
         }
     });
     socket.on('s_broadcast', function(state) { updateServerTankState(state); });
-    socket.on('s_on_tank_move', function(state) { updateServerTankState(state); });
+    socket.on('s_on_tank_move', function(tankData) {
+        // Copy the fields of the new state into the right tank, since this only sends the updated
+        // state, rather than the entire gamestate.  This is one of the rare cases where using TCP
+        // is actually an advantage.
+        for (field in tankData.newState) {
+            serverTanks[tankData.tag][field] = tankData.newState[field];
+        }
+    });
     socket.on('s_spawn_projectile', function(newProj) {
         // Check if the projectile is new and isn't one of ours
         if (!(newProj.id in projectiles)) {
