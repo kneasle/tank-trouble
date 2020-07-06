@@ -13,7 +13,7 @@ def generate_maze(size_x, size_y, print_map=False):
         for i in range(size_x)
     ]
 
-    # random.shuffle(walls)
+    random.shuffle(walls)
 
     for wall in walls:
         if wall.orientation == "r":
