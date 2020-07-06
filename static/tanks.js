@@ -102,6 +102,17 @@ function onLoad() {
             projectiles[newProj.id] = proj;
         }
     });
+    socket.on('s_on_tank_explode', function(data) {
+        var id = data.tank;
+
+        tanks[id].isAlive = false;
+
+        if (id != socket.id) {
+            tanks[id].destructionTime = Date.now();
+        }
+
+        delete projectiles[data.projectile];
+    });
         
     // Set up callbacks
     window.onkeyup = function(e) { pressedKeys[e.keyCode] = false; };
@@ -111,26 +122,28 @@ function onLoad() {
         if (e.keyCode == SHOOT_KEY) {
             var myTank = getMyTank();
 
-            // Calculate the direction and location of the tank barrel
-            var dX = Math.cos(myTank.r);
-            var dY = Math.sin(myTank.r);
+            if (myTank && myTank.isAlive) {
+                // Calculate the direction and location of the tank barrel
+                var dX = Math.cos(myTank.r);
+                var dY = Math.sin(myTank.r);
 
-            var newId = socket.id + "|" + nextProjectileId;
+                var newId = socket.id + "|" + nextProjectileId;
 
-            projectiles[newId] = {
-                x: myTank.x + dX * TANK_LENGTH * (0.5 + BARREL_OVERHANG),
-                y: myTank.y + dY * TANK_LENGTH * (0.5 + BARREL_OVERHANG),
-                velX: dX * BULLET_SPEED,
-                velY: dY * BULLET_SPEED,
-                spawnTime: Date.now()
-            };
+                projectiles[newId] = {
+                    x: myTank.x + dX * TANK_LENGTH * (0.5 + BARREL_OVERHANG),
+                    y: myTank.y + dY * TANK_LENGTH * (0.5 + BARREL_OVERHANG),
+                    velX: dX * BULLET_SPEED,
+                    velY: dY * BULLET_SPEED,
+                    spawnTime: Date.now()
+                };
 
-            socket.emit("c_spawn_projectile", {
-                id: newId,
-                projectile: projectiles[newId]
-            });
+                socket.emit("c_spawn_projectile", {
+                    id: newId,
+                    projectile: projectiles[newId]
+                });
 
-            nextProjectileId += 1;
+                nextProjectileId += 1;
+            }
         }
     };
     window.onbeforeunload = function() { socket.close(); };
@@ -156,7 +169,7 @@ function frame() {
     // Control my tank
     var myTank = getMyTank();
 
-    if (myTank) {
+    if (myTank && myTank.isAlive) {
         myTank.angularVelocity = 0;
         if (pressedKeys[KEY_LEFT ] == true) { myTank.angularVelocity -= 1; }
         if (pressedKeys[KEY_RIGHT] == true) { myTank.angularVelocity += 1; }
@@ -229,6 +242,24 @@ function frame() {
         proj.x += proj.velX * timeDelta;
         proj.y += proj.velY * timeDelta;
 
+        // Basic bouncing
+        if (proj.x < 0) {
+            proj.velX = -proj.velX;
+            proj.x = -proj.x;
+        }
+        if (proj.x > 1) {
+            proj.velX = -proj.velX;
+            proj.x = 1 * 2 - proj.x;
+        }
+        if (proj.y < 0) {
+            proj.velY = -proj.velY;
+            proj.y = -proj.y;
+        }
+        if (proj.y > 1) {
+            proj.velY = -proj.velY;
+            proj.y = 1 * 2 - proj.y;
+        }
+
         if (Date.now() > proj.spawnTime + BULLET_LIFETIME * 1000) {
             projectilesToDestroy.push(id);
         }
@@ -236,6 +267,28 @@ function frame() {
 
     while (projectilesToDestroy.length > 0) {
         delete projectiles[projectilesToDestroy.pop()];
+    }
+
+    // Detect when my tank is destroyed
+    var myTank = getMyTank();
+
+    if (myTank && myTank.isAlive) {
+        for (const id in projectiles) {
+            var proj = projectiles[id];
+            var tankSpaceCoord = inverseTransformCoord(proj, myTank, myTank.r);
+
+            if (Math.abs(tankSpaceCoord.x) <= TANK_LENGTH / 2 + BULLET_RADIUS
+             && Math.abs(tankSpaceCoord.y) <= TANK_WIDTH / 2 + BULLET_RADIUS
+            ) {
+                myTank.isAlive = false;
+                myTank.destructionTime = Date.now();
+
+                socket.emit('c_on_tank_explode', {projectile: id});
+
+                delete projectiles[id];
+                break;
+            }
+        }
     }
 
     /* ===== RENDERING ==== */
@@ -298,6 +351,12 @@ function fillStrokeRect(x, y, w, h) {
 
 // Draw a tank
 function drawTank(tank, fillOverride) {
+    if (tank.isAlive) {
+        drawLiveTank(tank, fillOverride);
+    }
+}
+
+function drawLiveTank(tank, fillOverride) {
     // Save the canvas and move it so that the tank is at (0, 0) looking upwards
     ctx.save();
     ctx.translate(tank.x, tank.y);
@@ -334,6 +393,30 @@ function drawTank(tank, fillOverride) {
     ctx.restore();
 }
 
+
+
+
+
+/* ===== COLLISION ENGINE CODE ===== */
+function transformCoord(coord, origin, rotation) {
+    var rotatedX = coord.x * Math.cos(rotation) - coord.y * Math.sin(rotation);
+    var rotatedY = coord.x * Math.sin(rotation) + coord.y * Math.cos(rotation);
+
+    return {
+        x: rotatedX + origin.x,
+        y: rotatedY + origin.y
+    };
+}
+
+function inverseTransformCoord(coord, origin, rotation) {
+    var translatedX = coord.x - origin.x;
+    var translatedY = coord.y - origin.y;
+
+    return {
+        x: translatedX * Math.cos(-rotation) - translatedY * Math.sin(-rotation),
+        y: translatedX * Math.sin(-rotation) + translatedY * Math.cos(-rotation)
+    };
+}
 
 
 
