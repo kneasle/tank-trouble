@@ -1,7 +1,7 @@
 import random
 
 
-def generate_maze(size_x, size_y, density=1, print_map=False):
+def generate_maze(size_x, size_y, density=0.9, print_map=False):
     nodes = [Node(i + j * size_x, (i, j)) for j in range(size_y)
              for i in range(size_x)]
 
