@@ -52,7 +52,7 @@ def broadcast_loop():
 @socketio.on('c_on_new_user_arrive')
 def on_new_user_arrive(json):
     print('recieved new user', request.sid, str(json))
-    
+
     tankLock.acquire()
     try:
         game_state.add_tank(
