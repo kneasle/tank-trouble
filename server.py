@@ -99,6 +99,12 @@ def on_tank_explode(data, method=['GET', 'POST']):
     tankLock.acquire()
     try:
         game_state.explode_tank(request.sid)
+
+        num_tanks_alive = len(game_state.tanks_still_alive())
+        if num_tanks_alive == 1:
+            print("One tank remaining")
+        elif num_tanks_alive == 0:
+            print("No tanks remaining")
     finally:
         tankLock.release()
 

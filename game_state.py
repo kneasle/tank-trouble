@@ -3,7 +3,9 @@ from tank import Tank
 class GameState:
     def __init__(self):
         self._tanks = {}
+        self._scoreboard = {}
 
+    # Tank editing functions
     def add_tank(self, x, y, r, colour, name, sid):
         self._tanks[name] = Tank(x, y, r, colour, name, sid)
 
@@ -19,5 +21,16 @@ class GameState:
     def get_tank(self, tag):
         return self._tanks[tag]
 
+    # Game start and stop stuff
+    def tanks_still_alive(self):
+        return [tag for tag in self._tanks if self._tanks[tag]._js_data['isAlive']]
+
+    def start_new_game(self):
+        print("Starting new game")
+
+    def finish_game(self, winner):
+        print(f"{winner or 'No-one'} won.")
+
+    # JSON exporting stuff
     def tanks_json(self):
         return {tag: self._tanks[tag].to_json() for tag in self._tanks}
