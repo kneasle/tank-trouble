@@ -1,7 +1,7 @@
 import random
 
 
-def generate_maze(size_x, size_y, print_map=False):
+def generate_maze(size_x, size_y, density=1, print_map=False):
     nodes = [Node(i + j * size_x, (i, j)) for j in range(size_y)
              for i in range(size_x)]
 
@@ -32,6 +32,17 @@ def generate_maze(size_x, size_y, print_map=False):
             for node in nodes:
                 if node.group_id == dead_group_id:
                     node.group_id = parent_nodes[0].group_id
+
+    enabled_walls = []
+
+    for i in walls:
+        if i.enabled:
+            enabled_walls.append(i)
+
+    random.shuffle(enabled_walls)
+
+    for i in range(round((size_x - 1) * (size_y - 1) * (1 - density))):
+        enabled_walls[i].enabled = False
 
     right_walls = [[True for i in range(size_x - 1)] for i in range(size_y)]
     bottom_walls = [[True for i in range(size_x)] for i in range(size_y - 1)]
@@ -82,4 +93,4 @@ class Wall:
 
 
 if __name__ == "__main__":
-    print(generate_maze(4, 4, print_map=True))
+    generate_maze(10, 10, density=0.9, print_map=True)
