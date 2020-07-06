@@ -2,14 +2,17 @@ import random
 
 
 def generate_maze(size_x, size_y, density=0.9, print_map=False):
-    nodes = [Node(i + j * size_x, (i, j)) for j in range(size_y)
+    nodes = [Node(i + j * size_x, (i, j))
+             for j in range(size_y)
              for i in range(size_x)]
 
     walls = [
-        Wall("r", (i, j), True) for j in range(size_y)
+        Wall("r", (i, j), True)
+        for j in range(size_y)
         for i in range(size_x - 1)
     ] + [
-        Wall("b", (i, j), True) for j in range(size_y - 1)
+        Wall("b", (i, j), True)
+        for j in range(size_y - 1)
         for i in range(size_x)
     ]
 
