@@ -94,11 +94,11 @@ def on_tank_move(tank_data):
 
 @socketio.on('c_on_tank_explode')
 def on_tank_explode(data):
-    socketio.emit('s_on_tank_explode', {'tank': request.sid, 'projectile': data['projectile']})
+    socketio.emit('s_on_tank_explode', data);
 
     tankLock.acquire()
     try:
-        game_state.explode_tank(request.sid)
+        game_state.explode_tank(data['tag'])
 
         num_tanks_alive = len(game_state.tanks_still_alive())
         if num_tanks_alive == 1:

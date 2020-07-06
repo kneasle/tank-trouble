@@ -115,15 +115,16 @@ function onLoad() {
         }
     });
     socket.on('s_on_tank_explode', function(data) {
-        var id = data.tank;
+        var tank = tanks[data.tankTag];
 
-        tanks[id].isAlive = false;
-
-        if (id != socket.id) {
-            tanks[id].destructionTime = Date.now();
+        // Start animation if this tank's explosion is new to us
+        if (tank.isAlive) {
+            tank.destructionTime = Date.now();
         }
 
-        delete projectiles[data.projectile];
+        tank.isAlive = false;
+
+        delete projectiles[data.projectileTag];
     });
 
     // Set up callbacks
