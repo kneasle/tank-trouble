@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-from flask import Flask, render_template, request
-from flask_socketio import SocketIO
-from engineio.payload import Payload
-
 import random
 import logging
 import threading
 import time
+
+from flask import Flask, render_template, request
+from flask_socketio import SocketIO
+from engineio.payload import Payload
 
 from game_state import GameState
 
@@ -50,9 +50,9 @@ def broadcast_loop():
 
 # Called when a new player arrives
 @socketio.on('c_on_new_user_arrive')
-def on_new_user_arrive(json, methods=['GET', 'POST']):
+def on_new_user_arrive(json):
     print('recieved new user', request.sid, str(json))
-    
+
     tankLock.acquire()
     try:
         game_state.add_tank(
@@ -70,7 +70,7 @@ def on_new_user_arrive(json, methods=['GET', 'POST']):
 
 
 @socketio.on('disconnect')
-def on_user_leave_2(methods=['GET', 'POST']):
+def on_user_leave_2():
     print(f'user leaving {request.sid}')
 
     tankLock.acquire()
@@ -83,7 +83,7 @@ def on_user_leave_2(methods=['GET', 'POST']):
 
 
 @socketio.on('c_on_tank_move')
-def on_tank_move(updated_tank, methods=['GET', 'POST']):
+def on_tank_move(updated_tank):
     tankLock.acquire()
     try:
         game_state.update_tank(request.sid, updated_tank)
@@ -93,8 +93,8 @@ def on_tank_move(updated_tank, methods=['GET', 'POST']):
         tankLock.release()
 
 @socketio.on('c_on_tank_explode')
-def on_tank_explode(data, method=['GET', 'POST']):
-    socketio.emit('s_on_tank_explode', { 'tank': request.sid, 'projectile': data['projectile'] })
+def on_tank_explode(data):
+    socketio.emit('s_on_tank_explode', {'tank': request.sid, 'projectile': data['projectile']})
 
     tankLock.acquire()
     try:
@@ -103,13 +103,12 @@ def on_tank_explode(data, method=['GET', 'POST']):
         tankLock.release()
 
 @socketio.on('c_spawn_projectile')
-def on_spawn_projectile(data, methods=['GET', 'POST']):
+def on_spawn_projectile(data):
     socketio.emit('s_spawn_projectile', data)
 
 if __name__ == '__main__':
     # Spawn separate thread to broadcast the state of the game to avoid divergence
     broadcast_thread = threading.Thread(target=broadcast_loop)
-
     broadcast_thread.start()
 
     socketio.run(app, debug=False)

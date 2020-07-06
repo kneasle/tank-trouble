@@ -80,7 +80,7 @@ function onLoad() {
         });
     });
 
-    socket.on('s_on_new_user_arrive', function(state) { 
+    socket.on('s_on_new_user_arrive', function(state) {
         tanks = state;
         serverTanks = state;
     });
@@ -116,7 +116,7 @@ function onLoad() {
 
         delete projectiles[data.projectile];
     });
-        
+
     // Set up callbacks
     window.onkeyup = function(e) { pressedKeys[e.keyCode] = false; };
     window.onkeydown = function(e) {
@@ -153,7 +153,7 @@ function onLoad() {
 
     // Set the loops going
     setInterval(updateServer, 50);
-    
+
     frame();
 }
 
@@ -195,7 +195,7 @@ function frame() {
         var tank = tanks[id];
 
         if (id == socket.id) {
-            // How to update the position of currently controlled tanks if the server tells us 
+            // How to update the position of currently controlled tanks if the server tells us
             // something different.  For now do nothing - the client knows best.
         } else {
             // How to update the position of other tanks according to what the server says.
@@ -313,7 +313,7 @@ function frame() {
     for (const id in tanks) {
         drawTank(tanks[id]);
     }
-    
+
     if (SHOW_SERVER_TANKS) {
         for (const id in serverTanks) {
             drawTank(serverTanks[id], "rgba(0,0,0,0)");
