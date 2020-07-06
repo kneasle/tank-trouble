@@ -17,13 +17,16 @@ def createTank(x, y, r, col):
         'r': r,
         'col': col,
         'angularVelocity': 0,
-        'forwardVelocity': 0
+        'forwardVelocity': 0,
+        'isAlive': True,
+        'destructionTime': 0
     }
 
 # A lock to make sure that only one thread can access the tanks array at one time, to avoid
 # painful race conditions when people leave the server
 tankLock = threading.Lock()
 tanks = {}
+tanks_in_the_game = []
 
 # Initialise the flask-socketio server
 app = Flask(__name__)
@@ -71,6 +74,8 @@ def on_new_user_arrive(json, methods=['GET', 'POST']):
             json['colour']
         )
 
+        tanks_in_the_game.append(request.sid)
+
         socketio.emit('s_on_new_user_arrive', tanks)
     finally:
         tankLock.release()
@@ -93,9 +98,21 @@ def on_user_leave_2(methods=['GET', 'POST']):
 def on_tank_move(updated_tank, methods=['GET', 'POST']):
     tankLock.acquire()
     try:
-        tanks[request.sid] = updated_tank;
+        tanks[request.sid] = updated_tank
 
         socketio.emit('s_on_tank_move', tanks)
+    finally:
+        tankLock.release()
+
+@socketio.on('c_on_tank_explode')
+def on_tank_explode(data, method=['GET', 'POST']):
+    socketio.emit('s_on_tank_explode', { 'tank': request.sid, 'projectile': data['projectile'] })
+
+    tankLock.acquire()
+    try:
+        tanks[request.sid]['isAlive'] = False
+
+        tanks_in_the_game.remove(request.sid)
     finally:
         tankLock.release()
 
