@@ -94,7 +94,7 @@ def on_tank_move(updated_tank):
 
 @socketio.on('c_on_tank_explode')
 def on_tank_explode(data):
-    socketio.emit('s_on_tank_explode', { 'tank': request.sid, 'projectile': data['projectile'] })
+    socketio.emit('s_on_tank_explode', {'tank': request.sid, 'projectile': data['projectile']})
 
     tankLock.acquire()
     try:
