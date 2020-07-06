@@ -1,7 +1,7 @@
 import random
 
 
-def generate_maze(size_x, size_y, density=0.9, print_map=False):
+def generate_maze(size_x, size_y, density=0.9):
     nodes = [Node(i + j * size_x, (i, j))
              for j in range(size_y)
              for i in range(size_x)]
@@ -53,13 +53,11 @@ def generate_maze(size_x, size_y, density=0.9, print_map=False):
         if wall.orientation == "b":
             bottom_walls[wall.position[1]][wall.position[0]] = wall.enabled
 
-    if print_map:
-        _print_map(right_walls, bottom_walls)
-
     return (right_walls, bottom_walls)
 
 
-def _print_map(right_walls, bottom_walls):
+def _print_map(walls):
+    right_walls, bottom_walls = walls
     size_x = len(bottom_walls[0])
     size_y = len(right_walls)
     print("+---" * size_x + "+")
@@ -98,4 +96,4 @@ class Wall:
 
 
 if __name__ == "__main__":
-    generate_maze(10, 10, density=0.9, print_map=True)
+    _print_map(generate_maze(10, 10, density=0.9))
