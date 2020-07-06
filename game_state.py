@@ -21,6 +21,15 @@ class GameState:
     def get_tank(self, tag):
         return self._tanks[tag]
 
+    def on_disconnect(self, sid):
+        tags = []
+
+        for tag in self._tanks:
+            if self._tanks[tag].sid == sid:
+                tags.append(tag)
+
+        return tags
+
     # Game start and stop stuff
     def tanks_still_alive(self):
         return [tag for tag in self._tanks if self._tanks[tag]._js_data['isAlive']]

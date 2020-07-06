@@ -75,9 +75,9 @@ def on_user_leave_2():
 
     tankLock.acquire()
     try:
-        game_state.delete_tank(request.sid)
+        tags = game_state.on_disconnect(request.sid)
 
-        socketio.emit('s_on_user_leave', {'id': request.sid})
+        socketio.emit('s_on_user_leave', tags)
     finally:
         tankLock.release()
 

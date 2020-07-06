@@ -84,9 +84,11 @@ function onLoad() {
         tanks = state;
         serverTanks = state;
     });
-    socket.on('s_on_user_leave', function(id) {
-        delete tanks[id.id];
-        delete serverTanks[id.id];
+    socket.on('s_on_user_leave', function(tags) {
+        for (var i = 0; i < tags.length; i++) {
+            delete tanks[tags[i]];
+            delete serverTanks[tag[i]];
+        }
     });
     socket.on('s_broadcast', function(state) { updateServerTankState(state); });
     socket.on('s_on_tank_move', function(state) { updateServerTankState(state); });
