@@ -54,28 +54,34 @@ def generate_maze(size_x, size_y, density=0.9, print_map=False):
             bottom_walls[wall.position[1]][wall.position[0]] = wall.enabled
 
     if print_map:
-        print("+---" * size_x + "+")
-
-        for y in range(size_y):
-            print("|   ", end="")
-            for x in range(size_x - 1):
-                if right_walls[y][x]:
-                    print("|   ", end="")
-                else:
-                    print("    ", end="")
-            print("|")
-
-            if y != size_y - 1:
-                for x in range(size_x):
-                    if bottom_walls[y][x]:
-                        print("+---", end="")
-                    else:
-                        print("+   ", end="")
-                print("+")
-
-        print("+---" * size_x + "+")
+        _print_map(right_walls, bottom_walls)
 
     return (right_walls, bottom_walls)
+
+
+def _print_map(right_walls, bottom_walls):
+    size_x = len(bottom_walls[0])
+    size_y = len(right_walls)
+    print("+---" * size_x + "+")
+
+    for y in range(size_y):
+        print("|   ", end="")
+        for x in range(size_x - 1):
+            if right_walls[y][x]:
+                print("|   ", end="")
+            else:
+                print("    ", end="")
+        print("|")
+
+        if y != size_y - 1:
+            for x in range(size_x):
+                if bottom_walls[y][x]:
+                    print("+---", end="")
+                else:
+                    print("+   ", end="")
+            print("+")
+
+    print("+---" * size_x + "+")
 
 
 class Node:
