@@ -109,7 +109,6 @@ def on_spawn_projectile(data):
 if __name__ == '__main__':
     # Spawn separate thread to broadcast the state of the game to avoid divergence
     broadcast_thread = threading.Thread(target=broadcast_loop)
-
     broadcast_thread.start()
 
     socketio.run(app, debug=False)
