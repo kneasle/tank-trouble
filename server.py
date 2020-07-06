@@ -64,17 +64,11 @@ def on_new_user_arrive(json, methods=['GET', 'POST']):
     
     tankLock.acquire()
     try:
-        # Pick the first available colour
-        cols = ['blue', 'lime', 'magenta', 'green', 'orange', 'red', 'yellow']
-        for t in tanks.values():
-            if t['col'] in cols:
-                cols.remove(t['col'])
-
         tanks[request.sid] = createTank(
             random.random(),
             random.random(),
             random.random() * 8,
-            cols[0]
+            json['colour']
         )
 
         socketio.emit('s_on_new_user_arrive', tanks)
