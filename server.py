@@ -42,8 +42,6 @@ def display_tanks():
 def start_new_game(expected_game_count):
     global game_state
 
-    print(f"start_new_game called, expecting game count to be {expected_game_count}")
-
     if game_state.game_count == expected_game_count:
         print("Starting new game.")
 
@@ -52,6 +50,9 @@ def start_new_game(expected_game_count):
         game_state.game_count += 1
 
         game_state.update_score()
+        game_state.start_new_game()
+
+        print(game_state.entire_state_json())
     else:
         print("Already started this game.")
 
@@ -143,5 +144,7 @@ if __name__ == '__main__':
     # Spawn separate thread to broadcast the state of the game to avoid divergence
     broadcast_thread = threading.Thread(target=broadcast_loop)
     broadcast_thread.start()
+
+    game_state.start_new_game()
 
     socketio.run(app, host='0.0.0.0', debug=False)
