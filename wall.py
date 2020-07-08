@@ -15,3 +15,17 @@ class Wall:
     @classmethod
     def generate_vertical_wall(self, x, y, length):
         return Wall(x - WALL_RADIUS, y - WALL_RADIUS, x + WALL_RADIUS, y + length + WALL_RADIUS)
+
+    def to_json(self):
+        return {
+            'x': self.x,
+            'y': self.y,
+            'width': self.width,
+            'height': self.height
+        }
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return f"<{self.x}, {self.y}, {self.width}, {self.height}>"
