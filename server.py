@@ -80,9 +80,6 @@ def on_new_user_arrive(json):
             game_state.get_tank(username).login_count += 1
         else:
             game_state.add_tank(
-                random.random(),
-                random.random(),
-                random.random() * 8,
                 json['colour'],
                 username,
                 request.sid

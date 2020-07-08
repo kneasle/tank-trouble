@@ -16,8 +16,10 @@ class GameState:
         self._maze_height = 0
 
     # Tank editing functions
-    def add_tank(self, x, y, r, colour, name, sid):
-        self._tanks[name] = Tank(x, y, r, colour, name, sid)
+    def add_tank(self, colour, name, sid):
+        (x, y) = self.get_all_centres_shuffled()[0]
+
+        self._tanks[name] = Tank(x, y, random.random() * math.pi * 2, colour, name, sid)
         self._scoreboard[name] = 0
 
     def update_tank(self, tag, tank_json):
@@ -57,15 +59,21 @@ class GameState:
     def tanks_still_alive(self):
         return [tag for tag in self._tanks if self._tanks[tag]._js_data['isAlive']]
 
-    def start_new_game(self):
-        self._generate_maze()
-
+    def get_all_centres_shuffled(self):
         centres = [
             (x + 0.5, y + 0.5)
             for x in range(self._maze_width)
             for y in range(self._maze_height)
         ]
+
         random.shuffle(centres)
+
+        return centres
+
+    def start_new_game(self):
+        self._generate_maze()
+
+        centres = self.get_all_centres_shuffled()
 
         for t in self._tanks:
             (x, y) = centres.pop()
