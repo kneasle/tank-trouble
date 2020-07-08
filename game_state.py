@@ -1,3 +1,6 @@
+import math
+import random
+
 import maze_gen
 from tank import Tank
 from wall import Wall
@@ -55,6 +58,24 @@ class GameState:
         return [tag for tag in self._tanks if self._tanks[tag]._js_data['isAlive']]
 
     def start_new_game(self):
+        self._generate_maze()
+
+        centres = [
+            (x + 0.5, y + 0.5)
+            for x in range(self._maze_width)
+            for y in range(self._maze_height)
+        ]
+        random.shuffle(centres)
+
+        for t in self._tanks:
+            (x, y) = centres.pop()
+
+            self._tanks[t]._js_data['isAlive'] = True
+            self._tanks[t]._js_data['x'] = x
+            self._tanks[t]._js_data['y'] = y
+            self._tanks[t]._js_data['r'] = random.random() * math.pi * 2
+
+    def _generate_maze(self):
         self._maze_width = 10
         self._maze_height = 5
 
