@@ -55,8 +55,6 @@ class GameState:
         return [tag for tag in self._tanks if self._tanks[tag]._js_data['isAlive']]
 
     def start_new_game(self):
-        print("Starting new game")
-
         self._maze_width = 10
         self._maze_height = 5
 
