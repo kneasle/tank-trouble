@@ -78,6 +78,13 @@ function onLoad() {
     // Start socketio client
     socket = io.connect('http://' + document.domain + ':' + location.port);
 
+    // Declare useful function
+    var overwriteGlobalState = function(state) {
+        maze = state.maze;
+        tanks = state.tanks;
+        serverTanks = state.tanks;
+    };
+
     // When the connection is established, tell the server that a new player has arrived
     socket.on('connect', function() {
         socket.emit('c_on_new_user_arrive', {
@@ -85,10 +92,13 @@ function onLoad() {
             name: params.name
         });
     });
-
     socket.on('s_on_new_user_arrive', function(state) {
-        tanks = state;
-        serverTanks = state;
+        if (state.newUserTag == params.name) {
+            overwriteGlobalState(state);
+        } else {
+            tanks[state.newUserTag] = state.tanks[state.newUserTag];
+            serverTanks[state.newUserTag] = state.tanks[state.newUserTag];
+        }
     });
     socket.on('s_on_user_leave', function(tags) {
         for (var i = 0; i < tags.length; i++) {
@@ -138,9 +148,7 @@ function onLoad() {
         delete projectiles[data.projectileTag];
     });
     socket.on('s_start_new_game', function(newGameState) {
-        maze.width = newGameState.width;
-        maze.height = newGameState.height;
-        maze.walls = newGameState.walls;
+        overwriteGlobalState(newGameState);
     });
 
     // Set up callbacks

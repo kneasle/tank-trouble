@@ -139,6 +139,10 @@ class GameState:
         return {
             'width': self._maze_width,
             'height': self._maze_height,
-            'walls': [w.to_json() for w in self._maze_walls],
+            'maze': {
+                'width': self._maze_width,
+                'height': self._maze_height,
+                'walls': [w.to_json() for w in self._maze_walls]
+            },
             'tanks': self.tanks_json()
         }

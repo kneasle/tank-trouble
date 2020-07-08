@@ -88,7 +88,11 @@ def on_new_user_arrive(json):
                 request.sid
             )
 
-        socketio.emit('s_on_new_user_arrive', game_state.tanks_json())
+        state_json = game_state.entire_state_json()
+
+        state_json['newUserTag'] = json['name']
+
+        socketio.emit('s_on_new_user_arrive', state_json)
     finally:
         tankLock.release()
 
