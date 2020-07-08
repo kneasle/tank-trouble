@@ -21,14 +21,26 @@ class GameState:
     def get_tank(self, tag):
         return self._tanks[tag]
 
+    def has_tank(self, tag):
+        return tag in self._tanks
+
     def on_disconnect(self, sid):
-        tags = []
+        kicked_tags = []
 
+        # Search to find out which tanks are attached to the sid that has disconnected.
         for tag in self._tanks:
-            if self._tanks[tag]._js_data['sid'] == sid:
-                tags.append(tag)
+            tank = self._tanks[tag]
 
-        return tags
+            if tank._sid == sid:
+                # The tank has been disconnected, so subtract its login count by one
+                tank.login_count -= 1
+
+                if tank.login_count == 0:
+                    kicked_tags.append(tag)
+
+                    del self._tanks[tag]
+
+        return kicked_tags
 
     # Game start and stop stuff
     def tanks_still_alive(self):

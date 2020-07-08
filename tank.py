@@ -12,6 +12,7 @@ class Tank:
         }
         self._sid = sid
         self._username = username
+        self.login_count = 1
 
     def explode(self):
         self._js_data['isAlive'] = False

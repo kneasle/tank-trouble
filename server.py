@@ -55,14 +55,19 @@ def on_new_user_arrive(json):
 
     tankLock.acquire()
     try:
-        game_state.add_tank(
-            random.random(),
-            random.random(),
-            random.random() * 8,
-            json['colour'],
-            json['name'],
-            request.sid
-        )
+        username = json['name']
+
+        if game_state.has_tank(username):
+            game_state.get_tank(username).login_count += 1
+        else:
+            game_state.add_tank(
+                random.random(),
+                random.random(),
+                random.random() * 8,
+                json['colour'],
+                username,
+                request.sid
+            )
 
         socketio.emit('s_on_new_user_arrive', game_state.tanks_json())
     finally:
