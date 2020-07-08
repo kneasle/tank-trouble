@@ -98,7 +98,12 @@ function onLoad() {
         // state, rather than the entire gamestate.  This is one of the rare cases where using TCP
         // is actually an advantage.
         for (field in tankData.newState) {
-            serverTanks[tankData.tag][field] = tankData.newState[field];
+            // Check that the tank is actually defined, since we might not have recieved the new
+            // new tank yet
+            var serverTank = serverTanks[tankData.tag];
+            if (serverTank) {
+                serverTank[field] = tankData.newState[field];
+            }
         }
     });
     socket.on('s_spawn_projectile', function(newProj) {
