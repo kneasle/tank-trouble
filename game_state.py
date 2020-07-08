@@ -15,6 +15,7 @@ class GameState:
     # Tank editing functions
     def add_tank(self, x, y, r, colour, name, sid):
         self._tanks[name] = Tank(x, y, r, colour, name, sid)
+        self._scoreboard[name] = 0
 
     def update_tank(self, tag, tank_json):
         self._tanks[tag].update_from_json(tank_json)
