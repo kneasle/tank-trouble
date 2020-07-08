@@ -9,7 +9,11 @@ var params;
 var pressedKeys = {};
 
 // Variables for the game
-var grid = { w: 1, h: 1 };
+var maze = {
+    width: 1,
+    height: 1,
+    walls: []
+};
 var tanks = {};
 var serverTanks = {};
 
@@ -132,6 +136,11 @@ function onLoad() {
         tank.isAlive = false;
 
         delete projectiles[data.projectileTag];
+    });
+    socket.on('s_start_new_game', function(newGameState) {
+        maze.width = newGameState.width;
+        maze.height = newGameState.height;
+        maze.walls = newGameState.walls;
     });
 
     // Set up callbacks
@@ -318,15 +327,20 @@ function frame() {
     ctx.clearRect(0, 0, viewRect.width, viewRect.height);
 
     // Transform the canvas so that the map starts at (0, 0) and one unit corresponds to one
-    // square of the grid
+    // square of the maze
     ctx.save();
     ctx.translate(viewRect.width / 2, viewRect.height / 2);
-    ctx.scale(200, 200);
-    ctx.translate(-0.5, -0.5);
+    ctx.scale(70, 70);
+    ctx.translate(-maze.width / 2, -maze.height / 2);
 
     // Draw the grid
-    ctx.lineWidth = WALL_THICKNESS;
-    ctx.strokeRect(0, 0, 1, 1);
+    ctx.fillStyle = 'black';
+
+    for (var i = 0; i < maze.walls.length; i++) {
+        var w = maze.walls[i];
+
+        ctx.fillRect(w.x, w.y, w.width, w.height);
+    }
 
     // Draw the tanks
     for (const id in tanks) {

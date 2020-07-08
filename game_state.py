@@ -121,13 +121,6 @@ class GameState:
                 current_wall_start_y = y
                 current_wall_length = 0
 
-    def entire_state_json(self):
-        return {
-            'width': self._maze_width,
-            'height': self._maze_height,
-            'walls': [w.to_json() for w in self._maze_walls]
-        }
-
     def update_score(self):
         tanks_alive = self.tanks_still_alive()
 
@@ -141,3 +134,11 @@ class GameState:
     # JSON exporting stuff
     def tanks_json(self):
         return {tag: self._tanks[tag].to_json() for tag in self._tanks}
+
+    def entire_state_json(self):
+        return {
+            'width': self._maze_width,
+            'height': self._maze_height,
+            'walls': [w.to_json() for w in self._maze_walls],
+            'tanks': self.tanks_json()
+        }

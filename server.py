@@ -52,7 +52,7 @@ def start_new_game(expected_game_count):
         game_state.update_score()
         game_state.start_new_game()
 
-        print(game_state.entire_state_json())
+        socketio.emit('s_start_new_game', game_state.entire_state_json())
     else:
         print("Already started this game.")
 
