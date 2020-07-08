@@ -10,11 +10,11 @@ class Wall:
 
     @classmethod
     def generate_horizontal_wall(self, x, y, length):
-        return Wall(x - WALL_RADIUS, y - WALL_RADIUS, x + length + WALL_RADIUS, y + WALL_RADIUS)
+        return Wall(x - WALL_RADIUS, y - WALL_RADIUS, length + WALL_WIDTH, WALL_WIDTH)
 
     @classmethod
     def generate_vertical_wall(self, x, y, length):
-        return Wall(x - WALL_RADIUS, y - WALL_RADIUS, x + WALL_RADIUS, y + length + WALL_RADIUS)
+        return Wall(x - WALL_RADIUS, y - WALL_RADIUS, WALL_WIDTH, length + WALL_WIDTH)
 
     def to_json(self):
         return {

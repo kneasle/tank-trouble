@@ -1,4 +1,4 @@
-from maze_gen import generate_maze
+import maze_gen
 from tank import Tank
 from wall import Wall
 
@@ -56,6 +56,79 @@ class GameState:
 
     def start_new_game(self):
         print("Starting new game")
+
+        self._maze_width = 10
+        self._maze_height = 5
+
+        # Generate maze
+        maze = maze_gen.generate_maze(self._maze_width, self._maze_height)
+        maze_gen.print_maze(maze)
+
+        # ===== CONVERT NEW MAZE INTO RECTANGLES =====
+        self._maze_walls = []
+
+        # Edges
+        self._maze_walls.append(Wall.generate_horizontal_wall(0, 0, self._maze_width))
+        self._maze_walls.append(Wall.generate_horizontal_wall(0, self._maze_height, self._maze_width))
+        self._maze_walls.append(Wall.generate_vertical_wall(0, 0, self._maze_height))
+        self._maze_walls.append(Wall.generate_vertical_wall(self._maze_width, 0, self._maze_height))
+
+        (right_walls, bottom_walls) = maze
+
+        # Horizontal walls
+        for y in range(self._maze_height - 1):
+            x = 0
+            current_wall_start_x = 0
+            current_wall_length = 0
+
+            while x < self._maze_width:
+                while x < self._maze_width and bottom_walls[y][x]:
+                    x += 1
+                    current_wall_length += 1
+
+                if current_wall_length > 0:
+                    self._maze_walls.append(
+                        Wall.generate_horizontal_wall(
+                            current_wall_start_x,
+                            y + 1,
+                            current_wall_length
+                        )
+                    )
+
+                x += 1
+                current_wall_start_x = x
+                current_wall_length = 0
+
+        # Vertical walls
+        for x in range(self._maze_width - 1):
+            y = 0
+            current_wall_start_y = 0
+            current_wall_length = 0
+
+            while y < self._maze_height:
+                while y < self._maze_height and right_walls[y][x]:
+                    y += 1
+                    current_wall_length += 1
+
+                if current_wall_length > 0:
+                    self._maze_walls.append(
+                        Wall.generate_vertical_wall(
+                            x + 1,
+                            current_wall_start_y,
+                            current_wall_length
+                        )
+                    )
+
+                y += 1
+                current_wall_start_y = y
+                current_wall_length = 0
+
+    def entire_state_json(self):
+        return {
+            'width': self._maze_width,
+            'height': self._maze_height,
+            'walls': [w.to_json() for w in self._maze_walls]
+        }
 
     def update_score(self):
         tanks_alive = self.tanks_still_alive()
