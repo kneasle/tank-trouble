@@ -56,8 +56,15 @@ class GameState:
     def start_new_game(self):
         print("Starting new game")
 
-    def finish_game(self, winner):
-        print(f"{winner or 'No-one'} won.")
+    def update_score(self):
+        tanks_alive = self.tanks_still_alive()
+
+        if len(tanks_alive) == 1:
+            self._scoreboard[tanks_alive[0]] += 1
+        else:
+            print("Game was a draw.")
+
+            assert tanks_alive == []
 
     # JSON exporting stuff
     def tanks_json(self):

@@ -50,6 +50,8 @@ def start_new_game(expected_game_count):
         # Update game count so that any more queued calls to this function will fail and not cause
         # the game to restart multiple times
         game_state.game_count += 1
+
+        game_state.update_score()
     else:
         print("Already started this game.")
 
