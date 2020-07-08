@@ -122,4 +122,4 @@ if __name__ == '__main__':
     broadcast_thread = threading.Thread(target=broadcast_loop)
     broadcast_thread.start()
 
-    socketio.run(app, debug=False)
+    socketio.run(app, host='0.0.0.0', debug=False)
