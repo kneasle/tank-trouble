@@ -4,6 +4,7 @@ class GameState:
     def __init__(self):
         self._tanks = {}
         self._scoreboard = {}
+        self.game_count = 0
 
     # Tank editing functions
     def add_tank(self, x, y, r, colour, name, sid):

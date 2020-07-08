@@ -37,6 +37,22 @@ def display_tanks():
     return render_template('tanks.html')
 
 
+# Start a new game (expected_game_count is used to avoid double-starting a game when the last tank
+# standing is blown up before the game restarts, and so there will be two calls to this function)
+def start_new_game(expected_game_count):
+    global game_state
+
+    print(f"start_new_game called, expecting game count to be {expected_game_count}")
+
+    if game_state.game_count == expected_game_count:
+        print("Starting new game.")
+
+        # Update game count so that any more queued calls to this function will fail and not cause
+        # the game to restart multiple times
+        game_state.game_count += 1
+    else:
+        print("Already started this game.")
+
 # Broadcast the state of the game every so often to avoid diversion
 def broadcast():
     socketio.emit('s_broadcast', game_state.tanks_json())
@@ -107,8 +123,12 @@ def on_tank_explode(data):
 
         num_tanks_alive = len(game_state.tanks_still_alive())
         if num_tanks_alive == 1:
+            threading.Timer(5, start_new_game, [game_state.game_count]).start()
+
             print("One tank remaining")
         elif num_tanks_alive == 0:
+            threading.Timer(0.5, start_new_game, [game_state.game_count]).start()
+
             print("No tanks remaining")
     finally:
         tankLock.release()
