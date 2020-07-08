@@ -56,7 +56,7 @@ def generate_maze(size_x, size_y, density=0.9):
     return (right_walls, bottom_walls)
 
 
-def _print_map(walls):
+def print_maze(walls):
     right_walls, bottom_walls = walls
     size_x = len(bottom_walls[0])
     size_y = len(right_walls)
@@ -96,4 +96,4 @@ class Wall:
 
 
 if __name__ == "__main__":
-    _print_map(generate_maze(10, 10, density=0.9))
+    print_maze(generate_maze(10, 10, density=0.9))
