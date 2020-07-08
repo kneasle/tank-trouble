@@ -55,14 +55,19 @@ def on_new_user_arrive(json):
 
     tankLock.acquire()
     try:
-        game_state.add_tank(
-            random.random(),
-            random.random(),
-            random.random() * 8,
-            json['colour'],
-            json['name'],
-            request.sid
-        )
+        username = json['name']
+
+        if game_state.has_tank(username):
+            game_state.get_tank(username).login_count += 1
+        else:
+            game_state.add_tank(
+                random.random(),
+                random.random(),
+                random.random() * 8,
+                json['colour'],
+                username,
+                request.sid
+            )
 
         socketio.emit('s_on_new_user_arrive', game_state.tanks_json())
     finally:
@@ -75,30 +80,36 @@ def on_user_leave_2():
 
     tankLock.acquire()
     try:
-        game_state.delete_tank(request.sid)
+        tags = game_state.on_disconnect(request.sid)
 
-        socketio.emit('s_on_user_leave', {'id': request.sid})
+        socketio.emit('s_on_user_leave', tags)
     finally:
         tankLock.release()
 
 
 @socketio.on('c_on_tank_move')
-def on_tank_move(updated_tank):
+def on_tank_move(tank_data):
+    game_state.update_tank(tank_data['tag'], tank_data['newState'])
+
     tankLock.acquire()
     try:
-        game_state.update_tank(request.sid, updated_tank)
-
-        socketio.emit('s_on_tank_move', game_state.tanks_json())
+        socketio.emit('s_on_tank_move', tank_data)
     finally:
         tankLock.release()
 
 @socketio.on('c_on_tank_explode')
 def on_tank_explode(data):
-    socketio.emit('s_on_tank_explode', {'tank': request.sid, 'projectile': data['projectile']})
+    socketio.emit('s_on_tank_explode', data);
 
     tankLock.acquire()
     try:
-        game_state.explode_tank(request.sid)
+        game_state.explode_tank(data['tankTag'])
+
+        num_tanks_alive = len(game_state.tanks_still_alive())
+        if num_tanks_alive == 1:
+            print("One tank remaining")
+        elif num_tanks_alive == 0:
+            print("No tanks remaining")
     finally:
         tankLock.release()
 
@@ -111,4 +122,4 @@ if __name__ == '__main__':
     broadcast_thread = threading.Thread(target=broadcast_loop)
     broadcast_thread.start()
 
-    socketio.run(app, debug=False)
+    socketio.run(app, host='0.0.0.0', debug=False)

@@ -3,6 +3,7 @@ var canvas;
 var ctx;
 var viewRect;
 var socket;
+var params;
 
 // Key tracking
 var pressedKeys = {};
@@ -54,6 +55,9 @@ const LATENCY_COMPENSATION_LERP_FACTOR = 12;
 
 // Called when the document loads
 function onLoad() {
+    // Read the params from the URL
+    params = getParams(window.location.href);
+
     // Get the canvas element and its drawing context
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
@@ -72,8 +76,6 @@ function onLoad() {
 
     // When the connection is established, tell the server that a new player has arrived
     socket.on('connect', function() {
-        params = getParams(window.location.href);
-
         socket.emit('c_on_new_user_arrive', {
             colour: '#' + params.colour,
             name: params.name
@@ -84,12 +86,21 @@ function onLoad() {
         tanks = state;
         serverTanks = state;
     });
-    socket.on('s_on_user_leave', function(id) {
-        delete tanks[id.id];
-        delete serverTanks[id.id];
+    socket.on('s_on_user_leave', function(tags) {
+        for (var i = 0; i < tags.length; i++) {
+            delete tanks[tags[i]];
+            delete serverTanks[tag[i]];
+        }
     });
     socket.on('s_broadcast', function(state) { updateServerTankState(state); });
-    socket.on('s_on_tank_move', function(state) { updateServerTankState(state); });
+    socket.on('s_on_tank_move', function(tankData) {
+        // Copy the fields of the new state into the right tank, since this only sends the updated
+        // state, rather than the entire gamestate.  This is one of the rare cases where using TCP
+        // is actually an advantage.
+        for (field in tankData.newState) {
+            serverTanks[tankData.tag][field] = tankData.newState[field];
+        }
+    });
     socket.on('s_spawn_projectile', function(newProj) {
         // Check if the projectile is new and isn't one of ours
         if (!(newProj.id in projectiles)) {
@@ -106,15 +117,16 @@ function onLoad() {
         }
     });
     socket.on('s_on_tank_explode', function(data) {
-        var id = data.tank;
+        var tank = tanks[data.tankTag];
 
-        tanks[id].isAlive = false;
-
-        if (id != socket.id) {
-            tanks[id].destructionTime = Date.now();
+        // Start animation if this tank's explosion is new to us
+        if (tank.isAlive) {
+            tank.destructionTime = Date.now();
         }
 
-        delete projectiles[data.projectile];
+        tank.isAlive = false;
+
+        delete projectiles[data.projectileTag];
     });
 
     // Set up callbacks
@@ -159,7 +171,9 @@ function onLoad() {
 
 // Called slower than the frames so that the server isn't swamped with updates
 function updateServer() {
-    socket.emit("c_on_tank_move", getMyTank());
+    if (getMyTank()) {
+        socket.emit("c_on_tank_move", { tag: params.name, newState: getMyTank() });
+    }
 }
 
 // Called once per frame
@@ -194,7 +208,7 @@ function frame() {
     for (const id in tanks) {
         var tank = tanks[id];
 
-        if (id == socket.id) {
+        if (id == params.name) {
             // How to update the position of currently controlled tanks if the server tells us
             // something different.  For now do nothing - the client knows best.
         } else {
@@ -286,7 +300,7 @@ function frame() {
                 myTank.isAlive = false;
                 myTank.destructionTime = Date.now();
 
-                socket.emit('c_on_tank_explode', {projectile: id});
+                socket.emit('c_on_tank_explode', { tankTag: params.name, projectileTag: id });
 
                 delete projectiles[id];
                 break;
@@ -430,7 +444,7 @@ function lerp(a, b, t) {
 }
 
 function getMyTank() {
-    return tanks[socket.id];
+    return tanks[params.name];
 }
 
 /**
