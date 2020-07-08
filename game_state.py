@@ -1,10 +1,16 @@
+from maze_gen import generate_maze
 from tank import Tank
+from wall import Wall
 
 class GameState:
     def __init__(self):
         self._tanks = {}
         self._scoreboard = {}
         self.game_count = 0
+
+        self._maze_walls = []
+        self._maze_width = 0
+        self._maze_height = 0
 
     # Tank editing functions
     def add_tank(self, x, y, r, colour, name, sid):
