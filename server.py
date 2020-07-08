@@ -127,7 +127,7 @@ def on_tank_explode(data):
 
             print("One tank remaining")
         elif num_tanks_alive == 0:
-            threading.Timer(0.5, start_new_game, [game_state.game_count]).start()
+            threading.Timer(1, start_new_game, [game_state.game_count]).start()
 
             print("No tanks remaining")
     finally:
