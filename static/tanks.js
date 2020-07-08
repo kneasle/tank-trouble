@@ -194,8 +194,17 @@ function onLoad() {
 
 // Called slower than the frames so that the server isn't swamped with updates
 function updateServer() {
-    if (getMyTank()) {
-        socket.emit("c_on_tank_move", { tag: params.name, newState: getMyTank() });
+    var myTank = getMyTank();
+
+    if (myTank) {
+        socket.emit("c_on_tank_move", {
+            tag: params.name,
+            newState: {
+                x: myTank.x,
+                y: myTank.y,
+                r: myTank.r
+            }
+        });
     }
 }
 

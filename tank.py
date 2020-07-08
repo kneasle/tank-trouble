@@ -18,7 +18,8 @@ class Tank:
         self._js_data['isAlive'] = False
 
     def update_from_json(self, json):
-        self._js_data = json
+        for k in json:
+            self._js_data[k] = json[k]
 
     def to_json(self):
         return self._js_data
