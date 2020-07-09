@@ -108,7 +108,7 @@ def on_tank_move(tank_data):
 
 @socketio.on('c_on_tank_explode')
 def on_tank_explode(data):
-    socketio.emit('s_on_tank_explode', data);
+    socketio.emit('s_on_tank_explode', data)
 
     game_state.explode_tank(data['tankTag'], data['projectileTag'])
 
