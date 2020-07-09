@@ -97,6 +97,8 @@ class GameState:
             self._tanks[t]._js_data['y'] = y
             self._tanks[t]._js_data['r'] = random.random() * math.pi * 2
 
+        self._projectiles = {}
+
     def _generate_maze(self):
         self._maze_width = 10
         self._maze_height = 5
