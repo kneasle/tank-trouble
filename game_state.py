@@ -1,9 +1,12 @@
 import math
 import random
+import time
 
 import maze_gen
 from tank import Tank
 from wall import Wall
+
+BULLET_DESPAWN_TIME = 5
 
 class GameState:
     def __init__(self):
@@ -15,6 +18,8 @@ class GameState:
         self._maze_width = 0
         self._maze_height = 0
 
+        self._projectiles = {}
+
     # Tank editing functions
     def add_tank(self, colour, name, sid):
         (x, y) = self.get_all_centres_shuffled()[0]
@@ -25,8 +30,12 @@ class GameState:
     def update_tank(self, tag, tank_json):
         self._tanks[tag].update_from_json(tank_json)
 
-    def explode_tank(self, tag):
+    def explode_tank(self, tag, projectile_tag):
         self._tanks[tag].explode()
+
+        del self._projectiles[projectile_tag]
+
+        self.update_projectiles()
 
     def delete_tank(self, tag):
         del self._tanks[tag]
@@ -36,6 +45,11 @@ class GameState:
 
     def has_tank(self, tag):
         return tag in self._tanks
+
+    def add_projectile(self, tag, json):
+        self._projectiles[tag] = json
+
+        self.update_projectiles()
 
     def on_disconnect(self, sid):
         kicked_tags = []
@@ -159,6 +173,16 @@ class GameState:
             print("Game was a draw.")
 
             assert tanks_alive == []
+
+    def update_projectiles(self):
+        tags_to_despawn = []
+
+        for tag in self._projectiles:
+            if self._projectiles[tag]['spawnTime'] / 1000 + BULLET_DESPAWN_TIME < time.time():
+                tags_to_despawn.append(tag)
+
+        for t in tags_to_despawn:
+            del self._projectiles[t]
 
     # JSON exporting stuff
     def tanks_json(self):

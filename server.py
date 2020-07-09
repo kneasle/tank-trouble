@@ -123,7 +123,7 @@ def on_tank_explode(data):
 
     tankLock.acquire()
     try:
-        game_state.explode_tank(data['tankTag'])
+        game_state.explode_tank(data['tankTag'], data['projectileTag'])
 
         num_tanks_alive = len(game_state.tanks_still_alive())
         if num_tanks_alive == 1:
@@ -140,6 +140,8 @@ def on_tank_explode(data):
 @socketio.on('c_spawn_projectile')
 def on_spawn_projectile(data):
     socketio.emit('s_spawn_projectile', data)
+
+    game_state.add_projectile(data['id'], data['projectile'])
 
 if __name__ == '__main__':
     # Spawn separate thread to broadcast the state of the game to avoid divergence
