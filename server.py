@@ -12,9 +12,6 @@ from engineio.payload import Payload
 from game_state import GameState
 
 
-# A lock to make sure that only one thread can access the tanks array at one time, to avoid
-# painful race conditions when people leave the server
-tankLock = threading.Lock()
 game_state = GameState()
 
 # Initialise the flask-socketio server
@@ -76,71 +73,55 @@ def broadcast_loop():
 def on_new_user_arrive(json):
     print('recieved new user', request.sid, str(json))
 
-    tankLock.acquire()
-    try:
-        username = json['name']
+    username = json['name']
 
-        if game_state.has_tank(username):
-            game_state.get_tank(username).login_count += 1
-        else:
-            game_state.add_tank(
-                json['colour'],
-                username,
-                request.sid
-            )
+    if game_state.has_tank(username):
+        game_state.get_tank(username).login_count += 1
+    else:
+        game_state.add_tank(
+            json['colour'],
+            username,
+            request.sid
+        )
 
-        state_json = game_state.entire_state_json()
+    state_json = game_state.entire_state_json()
 
-        state_json['newUserTag'] = json['name']
+    state_json['newUserTag'] = json['name']
 
-        socketio.emit('s_on_new_user_arrive', state_json)
-    finally:
-        tankLock.release()
+    socketio.emit('s_on_new_user_arrive', state_json)
 
 
 @socketio.on('disconnect')
 def on_user_leave():
     print(f'user leaving {request.sid}')
 
-    tankLock.acquire()
-    try:
-        tags = game_state.on_disconnect(request.sid)
+    tags = game_state.on_disconnect(request.sid)
 
-        socketio.emit('s_on_user_leave', tags)
-    finally:
-        tankLock.release()
+    socketio.emit('s_on_user_leave', tags)
 
 
 @socketio.on('c_on_tank_move')
 def on_tank_move(tank_data):
     game_state.update_tank(tank_data['tag'], tank_data['newState'])
 
-    tankLock.acquire()
-    try:
-        socketio.emit('s_on_tank_move', tank_data)
-    finally:
-        tankLock.release()
+    socketio.emit('s_on_tank_move', tank_data)
 
 
 @socketio.on('c_on_tank_explode')
 def on_tank_explode(data):
     socketio.emit('s_on_tank_explode', data);
 
-    tankLock.acquire()
-    try:
-        game_state.explode_tank(data['tankTag'], data['projectileTag'])
+    game_state.explode_tank(data['tankTag'], data['projectileTag'])
 
-        num_tanks_alive = len(game_state.tanks_still_alive())
-        if num_tanks_alive == 1:
-            threading.Timer(5, start_new_game, [game_state.game_count]).start()
+    num_tanks_alive = len(game_state.tanks_still_alive())
+    if num_tanks_alive == 1:
+        threading.Timer(5, start_new_game, [game_state.game_count]).start()
 
-            print("One tank remaining")
-        elif num_tanks_alive == 0:
-            threading.Timer(1, start_new_game, [game_state.game_count]).start()
+        print("One tank remaining")
+    elif num_tanks_alive == 0:
+        threading.Timer(1, start_new_game, [game_state.game_count]).start()
 
-            print("No tanks remaining")
-    finally:
-        tankLock.release()
+        print("No tanks remaining")
 
 
 @socketio.on('c_spawn_projectile')
