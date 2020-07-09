@@ -578,36 +578,6 @@ function intersection(rayOrigin, rayDir, line) {
     }
 }
 
-function length(v) {
-    return Math.sqrt(dot(v, v));
-}
-
-function dot(a, b) {
-    return a.x * b.x + a.y * b.y;
-}
-
-function normal(vector) {
-    return { x: -vector.y, y: vector.x };
-}
-
-function projectOnto(vector, dir) {
-    let multiplier = dot(vector, dir) / dot(dir, dir);
-
-    return {
-        x: multiplier * dir.x,
-        y: multiplier * dir.y
-    };
-}
-
-function reflectInDirection(vector, dir) {
-    let proj = projectOnto(vector, dir);
-
-    return {
-        x: vector.x - 2 * proj.x,
-        y: vector.y - 2 * proj.y
-    };
-}
-
 function recursiveBouncingRaycast(origin, dir, length, lines) {
     var firstIntersection = raycast(origin, dir, lines);
 
