@@ -8,7 +8,6 @@ def generate_maze(size_x, size_y, density=0.9):
     Generate a maze of a given size, returning the maze in the form of arrays of 'right walls' and
     'bottom walls'.
 
-
     For example, the following maze:
     +---+---+---+
     |       |   |
