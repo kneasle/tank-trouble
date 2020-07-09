@@ -2,6 +2,8 @@
 
 import random
 
+from wall import Wall
+
 
 def generate_maze(size_x, size_y, density=0.9):
     """
@@ -102,6 +104,72 @@ def generate_maze(size_x, size_y, density=0.9):
             bottom_edges[edge.position[1]][edge.position[0]] = edge.enabled
 
     return (right_edges, bottom_edges)
+
+
+def generate_walls_from_maze(width, height, maze):
+    """ Converts a wall given in right/bottom walls into rectangular walls of the correct width. """
+
+    walls = []
+
+    # Edges
+    walls.append(Wall.generate_horizontal_wall(0, 0, width))
+    walls.append(
+        Wall.generate_horizontal_wall(0, height, width)
+    )
+    walls.append(Wall.generate_vertical_wall(0, 0, height))
+    walls.append(Wall.generate_vertical_wall(width, 0, height))
+
+    (right_walls, bottom_walls) = maze
+
+    # Horizontal walls
+    for y in range(height - 1):
+        x = 0
+        current_wall_start_x = 0
+        current_wall_length = 0
+
+        while x < width:
+            while x < width and bottom_walls[y][x]:
+                x += 1
+                current_wall_length += 1
+
+            if current_wall_length > 0:
+                walls.append(
+                    Wall.generate_horizontal_wall(
+                        current_wall_start_x,
+                        y + 1,
+                        current_wall_length
+                    )
+                )
+
+            x += 1
+            current_wall_start_x = x
+            current_wall_length = 0
+
+    # Vertical walls
+    for x in range(width - 1):
+        y = 0
+        current_wall_start_y = 0
+        current_wall_length = 0
+
+        while y < height:
+            while y < height and right_walls[y][x]:
+                y += 1
+                current_wall_length += 1
+
+            if current_wall_length > 0:
+                walls.append(
+                    Wall.generate_vertical_wall(
+                        x + 1,
+                        current_wall_start_y,
+                        current_wall_length
+                    )
+                )
+
+            y += 1
+            current_wall_start_y = y
+            current_wall_length = 0
+
+    return walls
 
 
 def print_maze(walls):

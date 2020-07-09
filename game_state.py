@@ -9,7 +9,6 @@ import time
 
 import maze_gen
 from tank import Tank
-from wall import Wall
 
 
 BULLET_DESPAWN_TIME = 5
@@ -154,67 +153,11 @@ class GameState:
         maze = maze_gen.generate_maze(self._maze_width, self._maze_height)
         maze_gen.print_maze(maze)
 
-        # ===== CONVERT NEW MAZE INTO RECTANGLES =====
-        self._maze_walls = []
-
-        # Edges
-        self._maze_walls.append(Wall.generate_horizontal_wall(0, 0, self._maze_width))
-        self._maze_walls.append(
-            Wall.generate_horizontal_wall(0, self._maze_height, self._maze_width)
+        self._maze_walls = maze_gen.generate_walls_from_maze(
+            self._maze_width,
+            self._maze_height,
+            maze
         )
-        self._maze_walls.append(Wall.generate_vertical_wall(0, 0, self._maze_height))
-        self._maze_walls.append(Wall.generate_vertical_wall(self._maze_width, 0, self._maze_height))
-
-        (right_walls, bottom_walls) = maze
-
-        # Horizontal walls
-        for y in range(self._maze_height - 1):
-            x = 0
-            current_wall_start_x = 0
-            current_wall_length = 0
-
-            while x < self._maze_width:
-                while x < self._maze_width and bottom_walls[y][x]:
-                    x += 1
-                    current_wall_length += 1
-
-                if current_wall_length > 0:
-                    self._maze_walls.append(
-                        Wall.generate_horizontal_wall(
-                            current_wall_start_x,
-                            y + 1,
-                            current_wall_length
-                        )
-                    )
-
-                x += 1
-                current_wall_start_x = x
-                current_wall_length = 0
-
-        # Vertical walls
-        for x in range(self._maze_width - 1):
-            y = 0
-            current_wall_start_y = 0
-            current_wall_length = 0
-
-            while y < self._maze_height:
-                while y < self._maze_height and right_walls[y][x]:
-                    y += 1
-                    current_wall_length += 1
-
-                if current_wall_length > 0:
-                    self._maze_walls.append(
-                        Wall.generate_vertical_wall(
-                            x + 1,
-                            current_wall_start_y,
-                            current_wall_length
-                        )
-                    )
-
-                y += 1
-                current_wall_start_y = y
-                current_wall_length = 0
-
 
     def update_score(self):
         """ Update the score, assuming that the game has just finished. """
