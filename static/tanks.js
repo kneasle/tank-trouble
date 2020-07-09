@@ -23,6 +23,9 @@ var nextProjectileId = 0;
 var lastTime = Date.now();
 var wasMovingLastFrame = false;
 
+// Variables used for rendering
+var dpr = 1;
+
 /* ===== CONSTANTS ===== */
 // Constants that are needed by the physics engine
 const TANK_WIDTH = 0.32;
@@ -66,13 +69,11 @@ function onLoad() {
     ctx = canvas.getContext("2d");
 
     // Make sure that the canvas looks good on high DPI monitors (like mine)
-    var dpr = window.devicePixelRatio || 1;
+    dpr = window.devicePixelRatio || 1;
     viewRect = canvas.getBoundingClientRect();
 
     canvas.width = viewRect.width * dpr;
     canvas.height = viewRect.height * dpr;
-
-    ctx.scale(dpr, dpr);
 
     // Start socketio client
     socket = io.connect('http://' + document.domain + ':' + location.port);
@@ -347,6 +348,10 @@ function frame() {
     // Transform the canvas so that the map starts at (0, 0) and one unit corresponds to one
     // square of the maze
     ctx.save();
+
+    // Correct for high DPI displays
+    ctx.scale(dpr, dpr);
+
     ctx.translate(viewRect.width / 2, viewRect.height / 2);
     ctx.scale(70, 70);
     ctx.translate(-maze.width / 2, -maze.height / 2);
