@@ -124,7 +124,9 @@ class GameState:
 
         # Edges
         self._maze_walls.append(Wall.generate_horizontal_wall(0, 0, self._maze_width))
-        self._maze_walls.append(Wall.generate_horizontal_wall(0, self._maze_height, self._maze_width))
+        self._maze_walls.append(
+            Wall.generate_horizontal_wall(0, self._maze_height, self._maze_width)
+        )
         self._maze_walls.append(Wall.generate_vertical_wall(0, 0, self._maze_height))
         self._maze_walls.append(Wall.generate_vertical_wall(self._maze_width, 0, self._maze_height))
 
