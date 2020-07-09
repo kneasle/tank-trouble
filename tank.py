@@ -10,13 +10,24 @@ class Tank:
             'isAlive': True,
             'destructionTime': 0
         }
-        self._sid = sid
         self._username = username
         self.login_count = 1
+        self.sid = sid
+
+
+    def respawn(self, x, y, r):
+        self._js_data['isAlive'] = True
+        self._js_data['x'] = x
+        self._js_data['y'] = y
+        self._js_data['r'] = r
 
 
     def explode(self):
         self._js_data['isAlive'] = False
+
+
+    def is_alive(self):
+        return self._js_data['isAlive']
 
 
     def update_from_json(self, json):

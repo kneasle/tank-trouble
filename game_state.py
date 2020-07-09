@@ -68,7 +68,7 @@ class GameState:
         for tag in self._tanks:
             tank = self._tanks[tag]
 
-            if tank._sid == sid:
+            if tank.sid == sid:
                 # The tank has been disconnected, so subtract its login count by one
                 tank.login_count -= 1
 
@@ -82,7 +82,7 @@ class GameState:
 
     # Game start and stop stuff
     def tanks_still_alive(self):
-        return [tag for tag in self._tanks if self._tanks[tag]._js_data['isAlive']]
+        return [tag for tag in self._tanks if self._tanks[tag].is_alive()]
 
 
     def get_all_centres_shuffled(self):
@@ -105,10 +105,7 @@ class GameState:
         for t in self._tanks:
             (x, y) = centres.pop()
 
-            self._tanks[t]._js_data['isAlive'] = True
-            self._tanks[t]._js_data['x'] = x
-            self._tanks[t]._js_data['y'] = y
-            self._tanks[t]._js_data['r'] = random.random() * math.pi * 2
+            self._tanks[t].respawn(x, y, random.random() * math.pi * 2)
 
         self._projectiles = {}
 
