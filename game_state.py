@@ -20,6 +20,7 @@ class GameState:
 
         self._projectiles = {}
 
+
     # Tank editing functions
     def add_tank(self, colour, name, sid):
         (x, y) = self.get_all_centres_shuffled()[0]
@@ -27,8 +28,10 @@ class GameState:
         self._tanks[name] = Tank(x, y, random.random() * math.pi * 2, colour, name, sid)
         self._scoreboard[name] = 0
 
+
     def update_tank(self, tag, tank_json):
         self._tanks[tag].update_from_json(tank_json)
+
 
     def explode_tank(self, tag, projectile_tag):
         self._tanks[tag].explode()
@@ -37,19 +40,24 @@ class GameState:
 
         self.update_projectiles()
 
+
     def delete_tank(self, tag):
         del self._tanks[tag]
+
 
     def get_tank(self, tag):
         return self._tanks[tag]
 
+
     def has_tank(self, tag):
         return tag in self._tanks
+
 
     def add_projectile(self, tag, json):
         self._projectiles[tag] = json
 
         self.update_projectiles()
+
 
     def on_disconnect(self, sid):
         kicked_tags = []
@@ -69,9 +77,11 @@ class GameState:
 
         return kicked_tags
 
+
     # Game start and stop stuff
     def tanks_still_alive(self):
         return [tag for tag in self._tanks if self._tanks[tag]._js_data['isAlive']]
+
 
     def get_all_centres_shuffled(self):
         centres = [
@@ -83,6 +93,7 @@ class GameState:
         random.shuffle(centres)
 
         return centres
+
 
     def start_new_game(self):
         self._generate_maze()
@@ -98,6 +109,7 @@ class GameState:
             self._tanks[t]._js_data['r'] = random.random() * math.pi * 2
 
         self._projectiles = {}
+
 
     def _generate_maze(self):
         self._maze_width = 10
@@ -166,6 +178,7 @@ class GameState:
                 current_wall_start_y = y
                 current_wall_length = 0
 
+
     def update_score(self):
         tanks_alive = self.tanks_still_alive()
 
@@ -175,6 +188,7 @@ class GameState:
             print("Game was a draw.")
 
             assert tanks_alive == []
+
 
     def update_projectiles(self):
         tags_to_despawn = []
@@ -186,9 +200,11 @@ class GameState:
         for t in tags_to_despawn:
             del self._projectiles[t]
 
+
     # JSON exporting stuff
     def tanks_json(self):
         return {tag: self._tanks[tag].to_json() for tag in self._tanks}
+
 
     def entire_state_json(self):
         return {

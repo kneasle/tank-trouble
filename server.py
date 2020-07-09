@@ -11,6 +11,7 @@ from engineio.payload import Payload
 
 from game_state import GameState
 
+
 # A lock to make sure that only one thread can access the tanks array at one time, to avoid
 # painful race conditions when people leave the server
 tankLock = threading.Lock()
@@ -31,6 +32,7 @@ logging.getLogger('werkzeug').setLevel(logging.ERROR)
 @app.route('/')
 def display_landing_page():
     return render_template('landing-page.html')
+
 
 @app.route('/tanks')
 def display_tanks():
@@ -56,9 +58,11 @@ def start_new_game(expected_game_count):
     else:
         print("Already started this game.")
 
+
 # Broadcast the state of the game every so often to avoid diversion
 def broadcast():
     socketio.emit('s_broadcast', game_state.tanks_json())
+
 
 def broadcast_loop():
     while True:
@@ -117,6 +121,7 @@ def on_tank_move(tank_data):
     finally:
         tankLock.release()
 
+
 @socketio.on('c_on_tank_explode')
 def on_tank_explode(data):
     socketio.emit('s_on_tank_explode', data);
@@ -137,11 +142,13 @@ def on_tank_explode(data):
     finally:
         tankLock.release()
 
+
 @socketio.on('c_spawn_projectile')
 def on_spawn_projectile(data):
     socketio.emit('s_spawn_projectile', data)
 
     game_state.add_projectile(data['id'], data['projectile'])
+
 
 if __name__ == '__main__':
     # Spawn separate thread to broadcast the state of the game to avoid divergence

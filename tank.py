@@ -14,12 +14,15 @@ class Tank:
         self._username = username
         self.login_count = 1
 
+
     def explode(self):
         self._js_data['isAlive'] = False
+
 
     def update_from_json(self, json):
         for k in json:
             self._js_data[k] = json[k]
+
 
     def to_json(self):
         return self._js_data
