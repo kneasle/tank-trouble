@@ -52,7 +52,9 @@ const BULLET_SPEED = 2;
 const BULLET_LIFETIME = 5; // seconds
 
 // Lag compensation/debug settings
-const SHOW_SERVER_TANKS = false;
+const DEBUG_SERVER_TANKS = false;
+const DEBUG_RECT_OUTLINES = false;
+const DEBUG_RAYCAST = true;
 const LATENCY_COMPENSATION_LERP_FACTOR = 12;
 
 
@@ -365,51 +367,49 @@ function frame() {
         drawTank(tanks[id]);
     }
 
-    if (SHOW_SERVER_TANKS) {
+    if (DEBUG_SERVER_TANKS) {
         for (const id in serverTanks) {
             drawTank(serverTanks[id], "rgba(0,0,0,0)");
         }
     }
 
     // Draw lineSegments
-    var lines = getAllLineSegments();
+    if (DEBUG_RECT_OUTLINES) {
+        var lines = getAllLineSegments();
 
-    for (var i = 0; i < lines.length; i++) {
-        ctx.beginPath();
+        for (var i = 0; i < lines.length; i++) {
+            ctx.beginPath();
 
-        ctx.moveTo(lines[i].x1, lines[i].y1);
-        ctx.lineTo(lines[i].x2, lines[i].y2);
+            ctx.moveTo(lines[i].x1, lines[i].y1);
+            ctx.lineTo(lines[i].x2, lines[i].y2);
 
-        ctx.strokeStyle = "red";
-        ctx.lineWidth = 0.03;
-        ctx.stroke();
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 0.03;
+            ctx.stroke();
+        }
     }
 
     // Draw a raycast
-    if (myTank) {
-        var intersection = raycast(
-            myTank,
-            { x: Math.cos(myTank.r), y: Math.sin(myTank.r) },
-            BULLET_SPEED * BULLET_LIFETIME
-        );
+    if (DEBUG_RAYCAST) {
+        if (myTank) {
+            var points = bouncingRaycast(
+                myTank,
+                { x: Math.cos(myTank.r), y: Math.sin(myTank.r) },
+                BULLET_SPEED * BULLET_LIFETIME
+            );
 
-        var points = [myTank];
+            if (points.length > 0) {
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
 
-        if (intersection) {
-            points.push(intersection.point);
-        }
+                for (var i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
 
-        if (points.length > 0) {
-            ctx.beginPath();
-            ctx.moveTo(points[0].x, points[0].y);
-
-            for (var i = 1; i < points.length; i++) {
-                ctx.lineTo(points[i].x, points[i].y);
+                ctx.lineWidth = 0.01;
+                ctx.strokeStyle = myTank.col;
+                ctx.stroke();
             }
-
-            ctx.lineWidth = 0.01;
-            ctx.strokeStyle = myTank.col;
-            ctx.stroke();
         }
     }
 
@@ -577,7 +577,23 @@ function intersection(rayOrigin, rayDir, line) {
     }
 }
 
-function raycast(origin, directionVec, length, precalculated_lines) {
+function recursiveBouncingRaycast(origin, dir, length, lines) {
+    var firstIntersection = raycast(origin, dir, lines);
+
+    if (firstIntersection) {
+        return [firstIntersection.point];
+    }
+
+    return [];
+}
+
+function bouncingRaycast(origin, directionVec, length) {
+    var lines = getAllLineSegments();
+
+    return [origin].concat(recursiveBouncingRaycast(origin, directionVec, length, lines));
+}
+
+function raycast(origin, directionVec, precalculated_lines) {
     var lines = precalculated_lines || getAllLineSegments();
 
     var bestIntersection = undefined;
