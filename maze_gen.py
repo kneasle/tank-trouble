@@ -1,7 +1,56 @@
+""" Module to hold all the maze generation code. """
+
 import random
 
 
 def generate_maze(size_x, size_y, density=0.9):
+    """
+    Generate a maze of a given size, returning the maze in the form of arrays of 'right walls' and
+    'bottom walls'.
+    
+    
+    For example, the following maze:
+    +---+---+---+
+    |       |   |
+    +---+   +   +
+    |           |
+    +   +---+---+
+    |           |
+    +---+---+---+
+    would be represented as:
+        right_walls: [
+            [f, t],
+            [f, f],
+            [f, f]
+        ]
+        bottom_walls: [
+            [t, f, f],
+            [f, t, t]
+        ]
+
+    (where t = True, f = False).
+    """
+
+    class Node:
+        """ A simple class to hold a single cell in the maze during Prim's. """
+
+        def __init__(self, group_id, position):
+            self.group_id = group_id
+            self.position = position
+
+
+    class Wall:
+        """
+        A simple class to hold a single connection between two Nodes, which may or may not have a
+        wall added to it.
+        """
+
+        def __init__(self, orientation, position, enabled):
+            self.orientation = orientation
+            self.position = position
+            self.enabled = enabled
+
+
     nodes = [Node(i + j * size_x, (i, j))
              for j in range(size_y)
              for i in range(size_x)]
@@ -57,6 +106,8 @@ def generate_maze(size_x, size_y, density=0.9):
 
 
 def print_maze(walls):
+    """ Prints a maze given in the 'right and down walls' format. """
+
     right_walls, bottom_walls = walls
     size_x = len(bottom_walls[0])
     size_y = len(right_walls)
@@ -80,19 +131,6 @@ def print_maze(walls):
             print("+")
 
     print("+---" * size_x + "+")
-
-
-class Node:
-    def __init__(self, group_id, position):
-        self.group_id = group_id
-        self.position = position
-
-
-class Wall:
-    def __init__(self, orientation, position, enabled):
-        self.orientation = orientation
-        self.position = position
-        self.enabled = enabled
 
 
 if __name__ == "__main__":
