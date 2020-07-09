@@ -342,6 +342,7 @@ function frame() {
                 socket.emit('c_on_tank_explode', { tankTag: params.name, projectileTag: id });
 
                 delete projectiles[id];
+
                 break;
             }
         }
