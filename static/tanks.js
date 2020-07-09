@@ -27,7 +27,6 @@ var wasMovingLastFrame = false;
 // Constants that are needed by the physics engine
 const TANK_WIDTH = 0.32;
 const TANK_LENGTH = 0.42;
-const WALL_THICKNESS = 0.1;
 const BULLET_RADIUS = 0.05;
 
 // Display constants
