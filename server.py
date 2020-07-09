@@ -28,12 +28,12 @@ logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 # Function called when the browser loads the root page in the URL
 @app.route('/')
-def display_landing_page():
+def render_landing_page():
     return render_template('landing-page.html')
 
 
 @app.route('/tanks')
-def display_tanks():
+def render_game_page():
     return render_template('tanks.html')
 
 
