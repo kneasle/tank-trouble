@@ -114,8 +114,20 @@ class GameState:
     def start_new_game(self):
         """ Starts a new game. """
 
-        self._generate_maze()
+        # Generate maze
+        self._maze_width = 10
+        self._maze_height = 5
 
+        maze = maze_gen.generate_maze(self._maze_width, self._maze_height)
+        maze_gen.print_maze(maze)
+
+        self._maze_walls = maze_gen.generate_walls_from_maze(
+            self._maze_width,
+            self._maze_height,
+            maze
+        )
+
+        # Respawn tanks in random but different centres
         centres = self._get_all_centres_shuffled()
 
         for t in self._tanks:
@@ -123,6 +135,7 @@ class GameState:
 
             self._tanks[t].respawn(x, y, random.random() * math.pi * 2)
 
+        # Make all projectiles despawn
         self._projectiles = {}
 
 
@@ -141,23 +154,6 @@ class GameState:
         random.shuffle(centres)
 
         return centres
-
-
-    def _generate_maze(self):
-        """ Rewrite the maze variables of `self` with a new random maze. """
-
-        self._maze_width = 10
-        self._maze_height = 5
-
-        # Generate maze
-        maze = maze_gen.generate_maze(self._maze_width, self._maze_height)
-        maze_gen.print_maze(maze)
-
-        self._maze_walls = maze_gen.generate_walls_from_maze(
-            self._maze_width,
-            self._maze_height,
-            maze
-        )
 
     def update_score(self):
         """ Update the score, assuming that the game has just finished. """
