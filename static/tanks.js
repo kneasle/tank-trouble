@@ -9,7 +9,11 @@ var params;
 var pressedKeys = {};
 
 // Variables for the game
-var grid = { w: 1, h: 1 };
+var maze = {
+    width: 1,
+    height: 1,
+    walls: []
+};
 var tanks = {};
 var serverTanks = {};
 
@@ -23,7 +27,6 @@ var wasMovingLastFrame = false;
 // Constants that are needed by the physics engine
 const TANK_WIDTH = 0.32;
 const TANK_LENGTH = 0.42;
-const WALL_THICKNESS = 0.1;
 const BULLET_RADIUS = 0.05;
 
 // Display constants
@@ -74,6 +77,14 @@ function onLoad() {
     // Start socketio client
     socket = io.connect('http://' + document.domain + ':' + location.port);
 
+    // Declare useful function
+    var overwriteGlobalState = function(state) {
+        maze = state.maze;
+        tanks = state.tanks;
+        serverTanks = state.tanks;
+        projectiles = state.projectiles;
+    };
+
     // When the connection is established, tell the server that a new player has arrived
     socket.on('connect', function() {
         socket.emit('c_on_new_user_arrive', {
@@ -81,10 +92,13 @@ function onLoad() {
             name: params.name
         });
     });
-
     socket.on('s_on_new_user_arrive', function(state) {
-        tanks = state;
-        serverTanks = state;
+        if (state.newUserTag == params.name) {
+            overwriteGlobalState(state);
+        } else {
+            tanks[state.newUserTag] = state.tanks[state.newUserTag];
+            serverTanks[state.newUserTag] = state.tanks[state.newUserTag];
+        }
     });
     socket.on('s_on_user_leave', function(tags) {
         for (var i = 0; i < tags.length; i++) {
@@ -94,11 +108,17 @@ function onLoad() {
     });
     socket.on('s_broadcast', function(state) { updateServerTankState(state); });
     socket.on('s_on_tank_move', function(tankData) {
-        // Copy the fields of the new state into the right tank, since this only sends the updated
-        // state, rather than the entire gamestate.  This is one of the rare cases where using TCP
-        // is actually an advantage.
-        for (field in tankData.newState) {
-            serverTanks[tankData.tag][field] = tankData.newState[field];
+        var serverTank = serverTanks[tankData.tag];
+
+        // Check that the tank is actually defined, since we might not have recieved the new
+        // new tank yet
+        if (serverTank) {
+            // Copy the fields of the new state into the right tank, since this only sends the updated
+            // state, rather than the entire gamestate.  This is one of the rare cases where using TCP
+            // is actually an advantage.
+            for (field in tankData.newState) {
+                serverTank[field] = tankData.newState[field];
+            }
         }
     });
     socket.on('s_spawn_projectile', function(newProj) {
@@ -127,6 +147,9 @@ function onLoad() {
         tank.isAlive = false;
 
         delete projectiles[data.projectileTag];
+    });
+    socket.on('s_start_new_game', function(newGameState) {
+        overwriteGlobalState(newGameState);
     });
 
     // Set up callbacks
@@ -171,8 +194,17 @@ function onLoad() {
 
 // Called slower than the frames so that the server isn't swamped with updates
 function updateServer() {
-    if (getMyTank()) {
-        socket.emit("c_on_tank_move", { tag: params.name, newState: getMyTank() });
+    var myTank = getMyTank();
+
+    if (myTank) {
+        socket.emit("c_on_tank_move", {
+            tag: params.name,
+            newState: {
+                x: myTank.x,
+                y: myTank.y,
+                r: myTank.r
+            }
+        });
     }
 }
 
@@ -313,15 +345,20 @@ function frame() {
     ctx.clearRect(0, 0, viewRect.width, viewRect.height);
 
     // Transform the canvas so that the map starts at (0, 0) and one unit corresponds to one
-    // square of the grid
+    // square of the maze
     ctx.save();
     ctx.translate(viewRect.width / 2, viewRect.height / 2);
-    ctx.scale(200, 200);
-    ctx.translate(-0.5, -0.5);
+    ctx.scale(70, 70);
+    ctx.translate(-maze.width / 2, -maze.height / 2);
 
     // Draw the grid
-    ctx.lineWidth = WALL_THICKNESS;
-    ctx.strokeRect(0, 0, 1, 1);
+    ctx.fillStyle = 'black';
+
+    for (var i = 0; i < maze.walls.length; i++) {
+        var w = maze.walls[i];
+
+        ctx.fillRect(w.x, w.y, w.width, w.height);
+    }
 
     // Draw the tanks
     for (const id in tanks) {
