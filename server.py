@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+""" Main module of the server. """
+
 import logging
 import threading
 import time
@@ -11,12 +13,12 @@ from engineio.payload import Payload
 from game_state import GameState
 
 
-game_state = GameState()
+game_state = GameState() # pylint: disable=invalid-name
 
 # Initialise the flask-socketio server
-app = Flask(__name__)
+app = Flask(__name__) # pylint: disable=invalid-name
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
-socketio = SocketIO(app, async_mode='threading')
+socketio = SocketIO(app, async_mode='threading') # pylint: disable=invalid-name
 
 Payload.max_decode_packets = 15
 
@@ -38,8 +40,6 @@ def display_tanks():
 # Start a new game (expected_game_count is used to avoid double-starting a game when the last tank
 # standing is blown up before the game restarts, and so there will be two calls to this function)
 def start_new_game(expected_game_count):
-    global game_state
-
     if game_state.game_count == expected_game_count:
         print("Starting new game.")
 
@@ -132,8 +132,7 @@ def on_spawn_projectile(data):
 
 if __name__ == '__main__':
     # Spawn separate thread to broadcast the state of the game to avoid divergence
-    broadcast_thread = threading.Thread(target=broadcast_loop)
-    broadcast_thread.start()
+    threading.Thread(target=broadcast_loop).start()
 
     game_state.start_new_game()
 
