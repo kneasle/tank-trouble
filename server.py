@@ -99,7 +99,7 @@ def on_new_user_arrive(json):
 
 
 @socketio.on('disconnect')
-def on_user_leave_2():
+def on_user_leave():
     print(f'user leaving {request.sid}')
 
     tankLock.acquire()
