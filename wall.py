@@ -11,13 +11,13 @@ class Wall:
 
 
     @classmethod
-    def generate_horizontal_wall(self, x, y, length):
-        return Wall(x - WALL_RADIUS, y - WALL_RADIUS, length + WALL_WIDTH, WALL_WIDTH)
+    def generate_horizontal_wall(cls, x, y, length):
+        return cls(x - WALL_RADIUS, y - WALL_RADIUS, length + WALL_WIDTH, WALL_WIDTH)
 
 
     @classmethod
-    def generate_vertical_wall(self, x, y, length):
-        return Wall(x - WALL_RADIUS, y - WALL_RADIUS, WALL_WIDTH, length + WALL_WIDTH)
+    def generate_vertical_wall(cls, x, y, length):
+        return cls(x - WALL_RADIUS, y - WALL_RADIUS, WALL_WIDTH, length + WALL_WIDTH)
 
 
     def to_json(self):
