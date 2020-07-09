@@ -83,6 +83,7 @@ function onLoad() {
         maze = state.maze;
         tanks = state.tanks;
         serverTanks = state.tanks;
+        projectiles = state.projectiles;
     };
 
     // When the connection is established, tell the server that a new player has arrived
