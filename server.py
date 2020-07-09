@@ -29,17 +29,25 @@ logging.getLogger('werkzeug').setLevel(logging.ERROR)
 # Function called when the browser loads the root page in the URL
 @app.route('/')
 def render_landing_page():
+    """ Renders the landing page of the game. """
+
     return render_template('landing-page.html')
 
 
 @app.route('/tanks')
 def render_game_page():
+    """ Renders the gameplay page of the game. """
+
     return render_template('tanks.html')
 
 
-# Start a new game (expected_game_count is used to avoid double-starting a game when the last tank
-# standing is blown up before the game restarts, and so there will be two calls to this function)
 def start_new_game(expected_game_count):
+    """
+    Called as a callback when one or no tanks are left.  Will sometimes be called twice to start
+    the same game, but this is handled by using `expected_game_count` to check that no game has
+    been created since the timer was created.
+    """
+
     if game_state.game_count == expected_game_count:
         print("Starting new game.")
 
@@ -55,12 +63,14 @@ def start_new_game(expected_game_count):
         print("Already started this game.")
 
 
-# Broadcast the state of the game every so often to avoid diversion
 def broadcast():
+    """ Broadcast the entire state of the tanks to the clients, to avoid diversion. """
     socketio.emit('s_broadcast', game_state.tanks_json())
 
 
 def broadcast_loop():
+    """ Calls `broadcast` twice a second. """
+
     while True:
         broadcast()
 
@@ -70,6 +80,8 @@ def broadcast_loop():
 # Called when a new player arrives
 @socketio.on('c_on_new_user_arrive')
 def on_new_user_arrive(json):
+    """ Called when a new user arrives in the game. """
+
     print('recieved new user', request.sid, str(json))
 
     username = json['name']
@@ -92,6 +104,8 @@ def on_new_user_arrive(json):
 
 @socketio.on('disconnect')
 def on_user_leave():
+    """ Called when a user disconnects from the game. """
+
     print(f'user leaving {request.sid}')
 
     tags = game_state.on_disconnect(request.sid)
@@ -101,6 +115,8 @@ def on_user_leave():
 
 @socketio.on('c_on_tank_move')
 def on_tank_move(tank_data):
+    """ Called when a tank moves. """
+
     game_state.update_tank(tank_data['tag'], tank_data['newState'])
 
     socketio.emit('s_on_tank_move', tank_data)
@@ -108,6 +124,8 @@ def on_tank_move(tank_data):
 
 @socketio.on('c_on_tank_explode')
 def on_tank_explode(data):
+    """ Called when a tank explodes. """
+
     socketio.emit('s_on_tank_explode', data)
 
     game_state.explode_tank(data['tankTag'], data['projectileTag'])
@@ -125,6 +143,8 @@ def on_tank_explode(data):
 
 @socketio.on('c_spawn_projectile')
 def on_spawn_projectile(data):
+    """ Called when a projectile is shot. """
+
     socketio.emit('s_spawn_projectile', data)
 
     game_state.add_projectile(data['id'], data['projectile'])
