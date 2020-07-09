@@ -186,6 +186,12 @@ function onLoad() {
         }
     };
     window.onbeforeunload = function() { socket.close(); };
+    window.onresize = function() {
+        viewRect = canvas.getBoundingClientRect();
+
+        canvas.width = viewRect.width * dpr;
+        canvas.height = viewRect.height * dpr;
+    };
 
     // Set the loops going
     setInterval(updateServer, 50);
