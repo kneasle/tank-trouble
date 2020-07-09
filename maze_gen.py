@@ -38,7 +38,7 @@ def generate_maze(size_x, size_y, density=0.9):
             self.position = position
 
 
-    class Wall:
+    class Edge:
         """
         A simple class to hold a single connection between two Nodes, which may or may not have a
         wall added to it.
@@ -54,29 +54,29 @@ def generate_maze(size_x, size_y, density=0.9):
              for j in range(size_y)
              for i in range(size_x)]
 
-    walls = [
-        Wall("r", (i, j), True)
+    edges = [
+        Edge("r", (i, j), True)
         for j in range(size_y)
         for i in range(size_x - 1)
     ] + [
-        Wall("b", (i, j), True)
+        Edge("b", (i, j), True)
         for j in range(size_y - 1)
         for i in range(size_x)
     ]
 
-    random.shuffle(walls)
+    random.shuffle(edges)
 
-    for wall in walls:
-        if wall.orientation == "r":
-            parent_nodes = [nodes[wall.position[0] + size_x * wall.position[1]],
-                            nodes[wall.position[0] + 1 + size_x * wall.position[1]]]
+    for edge in edges:
+        if edge.orientation == "r":
+            parent_nodes = [nodes[edge.position[0] + size_x * edge.position[1]],
+                            nodes[edge.position[0] + 1 + size_x * edge.position[1]]]
 
         else:
-            parent_nodes = [nodes[wall.position[0] + size_x * wall.position[1]],
-                            nodes[wall.position[0] + size_x * (wall.position[1] + 1)]]
+            parent_nodes = [nodes[edge.position[0] + size_x * edge.position[1]],
+                            nodes[edge.position[0] + size_x * (edge.position[1] + 1)]]
 
         if parent_nodes[0].group_id != parent_nodes[1].group_id:
-            wall.enabled = False
+            edge.enabled = False
 
             dead_group_id = parent_nodes[1].group_id
 
@@ -84,24 +84,24 @@ def generate_maze(size_x, size_y, density=0.9):
                 if node.group_id == dead_group_id:
                     node.group_id = parent_nodes[0].group_id
 
-    enabled_walls = list(filter(lambda wall: wall.enabled, walls))
+    enabled_edges = list(filter(lambda edge: edge.enabled, edges))
 
-    random.shuffle(enabled_walls)
+    random.shuffle(enabled_edges)
 
     for i in range(round((size_x - 1) * (size_y - 1) * (1 - density))):
-        enabled_walls[i].enabled = False
+        enabled_edges[i].enabled = False
 
-    right_walls = [[True for i in range(size_x - 1)] for i in range(size_y)]
-    bottom_walls = [[True for i in range(size_x)] for i in range(size_y - 1)]
+    right_edges = [[True for i in range(size_x - 1)] for i in range(size_y)]
+    bottom_edges = [[True for i in range(size_x)] for i in range(size_y - 1)]
 
-    for wall in walls:
-        if wall.orientation == "r":
-            right_walls[wall.position[1]][wall.position[0]] = wall.enabled
+    for edge in edges:
+        if edge.orientation == "r":
+            right_edges[edge.position[1]][edge.position[0]] = edge.enabled
 
-        if wall.orientation == "b":
-            bottom_walls[wall.position[1]][wall.position[0]] = wall.enabled
+        if edge.orientation == "b":
+            bottom_edges[edge.position[1]][edge.position[0]] = edge.enabled
 
-    return (right_walls, bottom_walls)
+    return (right_edges, bottom_edges)
 
 
 def print_maze(walls):
