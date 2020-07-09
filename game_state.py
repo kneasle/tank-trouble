@@ -6,7 +6,9 @@ import maze_gen
 from tank import Tank
 from wall import Wall
 
+
 BULLET_DESPAWN_TIME = 5
+
 
 class GameState:
     def __init__(self):
