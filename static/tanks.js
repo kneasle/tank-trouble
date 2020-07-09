@@ -371,6 +371,48 @@ function frame() {
         }
     }
 
+    // Draw lineSegments
+    var lines = getAllLineSegments();
+
+    for (var i = 0; i < lines.length; i++) {
+        ctx.beginPath();
+
+        ctx.moveTo(lines[i].x1, lines[i].y1);
+        ctx.lineTo(lines[i].x2, lines[i].y2);
+
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 0.03;
+        ctx.stroke();
+    }
+
+    // Draw a raycast
+    if (myTank) {
+        var intersection = raycast(
+            myTank,
+            { x: Math.cos(myTank.r), y: Math.sin(myTank.r) },
+            BULLET_SPEED * BULLET_LIFETIME
+        );
+
+        var points = [myTank];
+
+        if (intersection) {
+            points.push(intersection.point);
+        }
+
+        if (points.length > 0) {
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+
+            for (var i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+
+            ctx.lineWidth = 0.01;
+            ctx.strokeStyle = myTank.col;
+            ctx.stroke();
+        }
+    }
+
     // Draw the bullets
     ctx.fillStyle = "black";
     for (const id in projectiles) {
@@ -482,6 +524,81 @@ function lerp(a, b, t) {
 
 function getMyTank() {
     return tanks[params.name];
+}
+
+function getAllLineSegments() {
+    var lineSegments = [];
+
+    for (var i = 0; i < maze.walls.length; i++) {
+        var w = maze.walls[i];
+
+        var minX = w.x;
+        var minY = w.y;
+        var maxX = w.x + w.width;
+        var maxY = w.y + w.height;
+
+        lineSegments.push(
+            { x1: minX, y1: minY, x2: maxX, y2: minY }, // Top
+            { x1: minX, y1: maxY, x2: maxX, y2: maxY }, // Bottom
+            { x1: minX, y1: minY, x2: minX, y2: maxY }, // Left
+            { x1: maxX, y1: minY, x2: maxX, y2: maxY }  // Right
+        );
+    }
+
+    return lineSegments;
+}
+
+function intersection(rayOrigin, rayDir, line) {
+    var lineDir = {
+        x: line.x2 - line.x1,
+        y: line.y2 - line.y1
+    };
+    var originDiff = {
+        x: line.x1 - rayOrigin.x,
+        y: line.y1 - rayOrigin.y
+    };
+
+    var determinant = lineDir.x * rayDir.y - lineDir.y * rayDir.x;
+
+    if (Math.abs(determinant) < 1e-10) {
+        return undefined;
+    } else {
+        var rayMultiplier = (lineDir.x * originDiff.y - lineDir.y * originDiff.x) / determinant;
+        var lineMultiplier = (rayDir.x * originDiff.y - rayDir.y * originDiff.x) / determinant;
+
+        return {
+            rayMultiplier: rayMultiplier,
+            lineMultiplier: lineMultiplier,
+            point: {
+                x: rayOrigin.x + rayMultiplier * rayDir.x,
+                y: rayOrigin.y + rayMultiplier * rayDir.y
+            }
+        };
+    }
+}
+
+function raycast(origin, directionVec, length, precalculated_lines) {
+    var lines = precalculated_lines || getAllLineSegments();
+
+    var bestIntersection = undefined;
+    var bestIntersectionMultiplier = Infinity;
+
+    for (var l = 0; l < lines.length; l++) {
+        let i = intersection(origin, directionVec, lines[l]);
+
+        if (i
+            && i.rayMultiplier < bestIntersectionMultiplier 
+            && i.rayMultiplier > 0
+            && i.lineMultiplier >= 0
+            && i.lineMultiplier <= 1
+        ) {
+            // This is the best interesection
+            bestIntersectionMultiplier = i.rayMultiplier;
+            bestIntersection = i;
+        }
+    }
+
+    return bestIntersection;
 }
 
 /**
