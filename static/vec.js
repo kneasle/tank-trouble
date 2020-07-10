@@ -34,14 +34,14 @@ function Vec2(x, y) {
 
     // More complex but useful functions
     this.perpendicular = function() {
-        return new Vec2(-vector.y, vector.x);
+        return new Vec2(-this.y, this.x);
     };
 
-    this.projectOnto = function(vector, dir) {
-        return dir.mul(vector.dot(dir) / dir.squareLength());
+    this.projectOnto = function(dir) {
+        return dir.mul(this.dot(dir) / dir.squareLength());
     };
 
-    this.reflectInDirection = function(vector, dir) {
-        return vector.sub(vector.projectOnto(dir).mul(2));
+    this.reflectInDirection = function(dir) {
+        return this.sub(this.projectOnto(dir).mul(2));
     }
 }
