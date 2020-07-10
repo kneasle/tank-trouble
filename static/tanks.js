@@ -354,6 +354,12 @@ function frame() {
         drawTank(tanks[id]);
     }
 
+    // Draw projectiles
+    ctx.fillStyle = "black";
+    for (const id in projectiles) {
+        renderProjectile(ctx, projectiles[id]);
+    }
+
     if (DEBUG_SERVER_TANKS) {
         for (const id in serverTanks) {
             drawTank(serverTanks[id], "rgba(0,0,0,0)");
@@ -399,12 +405,6 @@ function frame() {
                 ctx.stroke();
             }
         }
-    }
-
-    // Draw projectiles
-    ctx.fillStyle = "black";
-    for (const id in projectiles) {
-        renderProjectile(ctx, projectiles[id]);
     }
 
     ctx.restore();
