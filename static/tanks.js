@@ -375,7 +375,7 @@ function frame() {
 
     // Draw lineSegments
     if (DEBUG_RECT_OUTLINES) {
-        var lines = getAllLineSegments();
+        var lines = getAllWallBoundingLines();
 
         for (var i = 0; i < lines.length; i++) {
             ctx.beginPath();
@@ -526,7 +526,7 @@ function getMyTank() {
     return tanks[params.name];
 }
 
-function getAllLineSegments() {
+function getAllWallBoundingLines() {
     var lineSegments = [];
 
     for (var i = 0; i < maze.walls.length; i++) {
@@ -594,13 +594,13 @@ function recursiveBouncingRaycast(origin, dir, length, lines) {
 }
 
 function bouncingRaycast(origin, directionVec, length) {
-    var lines = getAllLineSegments();
+    var lines = getAllWallBoundingLines();
 
     return [origin].concat(recursiveBouncingRaycast(origin, directionVec, length, lines));
 }
 
 function raycast(origin, directionVec, precalculated_lines) {
-    var lines = precalculated_lines || getAllLineSegments();
+    var lines = precalculated_lines || getAllWallBoundingLines();
 
     var bestIntersection = undefined;
     var bestIntersectionMultiplier = Infinity;
