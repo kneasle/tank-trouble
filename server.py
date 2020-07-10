@@ -88,6 +88,7 @@ def on_new_user_arrive(json):
 
     if game_state.has_tank(username):
         game_state.get_tank(username).login_count += 1
+        game_state.get_tank(username).set_colour(json['colour'])
     else:
         game_state.add_tank(
             json['colour'],
