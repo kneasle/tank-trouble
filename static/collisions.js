@@ -67,7 +67,7 @@ function raycast(origin, directionVec, precalculatedLines, minDist) {
 }
 
 function getAllWallBoundingLines(padding) {
-    const padding = padding || 0;
+    var padding = padding || 0;
 
     var lineSegments = [];
 
