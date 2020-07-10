@@ -360,13 +360,13 @@ function frame() {
         renderProjectile(ctx, projectiles[id]);
     }
 
+    // ===== DEBUG DRAWING =====
     if (DEBUG_SERVER_TANKS) {
         for (const id in serverTanks) {
             drawTank(serverTanks[id], "rgba(0,0,0,0)");
         }
     }
 
-    // Draw lineSegments
     if (DEBUG_RECT_OUTLINES) {
         var lines = getAllWallBoundingLines(BULLET_RADIUS);
 
@@ -382,7 +382,6 @@ function frame() {
         }
     }
 
-    // Draw a raycast
     if (DEBUG_RAYCAST) {
         if (myTank) {
             var points = bouncingRaycast(
@@ -407,8 +406,10 @@ function frame() {
         }
     }
 
+    // Restore the window to standard transformation
     ctx.restore();
 
+    // Request another frame
     window.requestAnimationFrame(frame);
 }
 
