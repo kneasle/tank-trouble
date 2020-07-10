@@ -4,13 +4,13 @@ const BULLET_LIFETIME = 5; // seconds
 
 const BULLET_TYPE = "Bullet";
 
-function spawnBullet(spawnPoint, direction, speed, lifetime) {
+function spawnBullet(spawnPoint, direction) {
     return {
         type: BULLET_TYPE,
         x: spawnPoint.x,
         y: spawnPoint.y,
-        velX: direction.x * speed,
-        velY: direction.y * speed,
+        velX: direction.x * BULLET_SPEED,
+        velY: direction.y * BULLET_SPEED,
         spawnTime: Date.now()
     };
 }
