@@ -393,8 +393,8 @@ function frame() {
     if (DEBUG_RAYCAST) {
         if (myTank) {
             var points = bouncingRaycast(
-                myTank,
-                { x: Math.cos(myTank.r), y: Math.sin(myTank.r) },
+                new Vec2(myTank.x, myTank.y),
+                new Vec2(Math.cos(myTank.r), Math.sin(myTank.r)),
                 BULLET_SPEED * BULLET_LIFETIME
             );
 
@@ -537,11 +537,16 @@ function getAllLineSegments() {
         var maxX = w.x + w.width;
         var maxY = w.y + w.height;
 
+        var topLeft = new Vec2(minX, minY);
+        var topRight = new Vec2(maxX, minY);
+        var bottomLeft = new Vec2(minX, maxY);
+        var bottomRight = new Vec2(maxX, maxY);
+
         lineSegments.push(
-            { x1: minX, y1: minY, x2: maxX, y2: minY }, // Top
-            { x1: minX, y1: maxY, x2: maxX, y2: maxY }, // Bottom
-            { x1: minX, y1: minY, x2: minX, y2: maxY }, // Left
-            { x1: maxX, y1: minY, x2: maxX, y2: maxY }  // Right
+            { p1: topLeft, p2: topRight }, // Top
+            { p1: topRight, p2: bottomRight }, // Right
+            { p1: bottomRight, p2: bottomLeft }, // Bottom
+            { p1: bottomLeft, p2: topLeft } // Left
         );
     }
 
@@ -549,14 +554,8 @@ function getAllLineSegments() {
 }
 
 function intersection(rayOrigin, rayDir, line) {
-    var lineDir = {
-        x: line.x2 - line.x1,
-        y: line.y2 - line.y1
-    };
-    var originDiff = {
-        x: line.x1 - rayOrigin.x,
-        y: line.y1 - rayOrigin.y
-    };
+    var lineDir = line.p2.sub(line.p1);
+    var originDiff = line.p1.sub(rayOrigin);
 
     var determinant = lineDir.x * rayDir.y - lineDir.y * rayDir.x;
 
@@ -569,11 +568,8 @@ function intersection(rayOrigin, rayDir, line) {
         return {
             rayMultiplier: rayMultiplier,
             lineMultiplier: lineMultiplier,
-            normal: normal(lineDir),
-            point: {
-                x: rayOrigin.x + rayMultiplier * rayDir.x,
-                y: rayOrigin.y + rayMultiplier * rayDir.y
-            }
+            normal: lineDir.perpendicular(),
+            point: rayOrigin.add(rayDir.mul(rayMultiplier))
         };
     }
 }
@@ -582,20 +578,19 @@ function recursiveBouncingRaycast(origin, dir, length, lines) {
     var firstIntersection = raycast(origin, dir, lines);
 
     if (firstIntersection && firstIntersection.rayMultiplier < length) {
+        console.log(firstIntersection.normal);
+
         return [firstIntersection.point].concat(
             recursiveBouncingRaycast(
                 firstIntersection.point,
-                reflectInDirection(dir, firstIntersection.normal),
+                dir.reflectInDirection(firstIntersection.normal),
                 length - firstIntersection.rayMultiplier,
                 lines
             )
         );
     }
 
-    return [{
-        x: origin.x + dir.x * length,
-        y: origin.y + dir.y * length
-    }];
+    return [origin.add(dir.mul(length))];
 }
 
 function bouncingRaycast(origin, directionVec, length) {
