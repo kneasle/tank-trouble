@@ -528,33 +528,6 @@ function getMyTank() {
     return tanks[params.name];
 }
 
-function getAllWallBoundingLines() {
-    var lineSegments = [];
-
-    for (var i = 0; i < maze.walls.length; i++) {
-        var w = maze.walls[i];
-
-        var minX = w.x;
-        var minY = w.y;
-        var maxX = w.x + w.width;
-        var maxY = w.y + w.height;
-
-        var topLeft = new Vec2(minX, minY);
-        var topRight = new Vec2(maxX, minY);
-        var bottomLeft = new Vec2(minX, maxY);
-        var bottomRight = new Vec2(maxX, maxY);
-
-        lineSegments.push(
-            { p1: topLeft, p2: topRight }, // Top
-            { p1: topRight, p2: bottomRight }, // Right
-            { p1: bottomRight, p2: bottomLeft }, // Bottom
-            { p1: bottomLeft, p2: topLeft } // Left
-        );
-    }
-
-    return lineSegments;
-}
-
 /**
  * Get the URL parameters
  * source: https://css-tricks.com/snippets/javascript/get-url-variables/

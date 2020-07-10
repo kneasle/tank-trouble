@@ -66,3 +66,31 @@ function raycast(origin, directionVec, precalculated_lines, minDist) {
     return bestIntersection;
 }
 
+function getAllWallBoundingLines(padding) {
+    const padding = padding || 0;
+
+    var lineSegments = [];
+
+    for (var i = 0; i < maze.walls.length; i++) {
+        var w = maze.walls[i];
+
+        var minX = w.x - padding;
+        var minY = w.y - padding;
+        var maxX = w.x + w.width + padding;
+        var maxY = w.y + w.height + padding;
+
+        var topLeft = new Vec2(minX, minY);
+        var topRight = new Vec2(maxX, minY);
+        var bottomLeft = new Vec2(minX, maxY);
+        var bottomRight = new Vec2(maxX, maxY);
+
+        lineSegments.push(
+            { p1: topLeft, p2: topRight }, // Top
+            { p1: topRight, p2: bottomRight }, // Right
+            { p1: bottomRight, p2: bottomLeft }, // Bottom
+            { p1: bottomLeft, p2: topLeft } // Left
+        );
+    }
+
+    return lineSegments;
+}
