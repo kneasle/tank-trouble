@@ -36,8 +36,8 @@ function recursiveBouncingRaycast(origin, dir, length, lines) {
     return [origin.add(dir.mul(length))];
 }
 
-function bouncingRaycast(origin, directionVec, length) {
-    var lines = getAllWallBoundingLines();
+function bouncingRaycast(origin, directionVec, length, padding) {
+    var lines = getAllWallBoundingLines(padding);
 
     return [origin].concat(recursiveBouncingRaycast(origin, directionVec, length, lines));
 }
