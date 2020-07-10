@@ -16,7 +16,7 @@ function spawnBullet(spawnPoint, direction, speed, lifetime) {
 }
 
 // Updates the projectile, and returns true if it should despawn
-function updateProjectile(proj) {
+function updateProjectile(proj, timeDelta) {
     if (proj.type == BULLET_TYPE) {
         proj.x += proj.velX * timeDelta;
         proj.y += proj.velY * timeDelta;

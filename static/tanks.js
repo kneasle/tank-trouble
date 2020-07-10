@@ -292,7 +292,7 @@ function frame() {
     var projectilesToDestroy = [];
 
     for (const id in projectiles) {
-        if (updateProjectile(projectiles[id])) {
+        if (updateProjectile(projectiles[id], timeDelta)) {
             projectilesToDestroy.push(id);
         }
     }
