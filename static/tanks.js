@@ -382,8 +382,8 @@ function frame() {
         for (var i = 0; i < lines.length; i++) {
             ctx.beginPath();
 
-            ctx.moveTo(lines[i].x1, lines[i].y1);
-            ctx.lineTo(lines[i].x2, lines[i].y2);
+            ctx.moveTo(lines[i].p1.x, lines[i].p1.y);
+            ctx.lineTo(lines[i].p2.x, lines[i].p2.y);
 
             ctx.strokeStyle = "red";
             ctx.lineWidth = 0.03;
