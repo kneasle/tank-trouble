@@ -40,6 +40,12 @@ class Tank:
         return self._js_data['isAlive']
 
 
+    def set_colour(self, new_colour):
+        """ Set the colour of the tank. """
+
+        self._js_data['col'] = new_colour
+
+
     def update_from_json(self, json):
         """ Update the attributes given in `json`. """
 
