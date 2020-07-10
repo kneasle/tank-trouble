@@ -54,7 +54,7 @@ const BULLET_LIFETIME = 5; // seconds
 // Lag compensation/debug settings
 var DEBUG_SERVER_TANKS = false;
 var DEBUG_RECT_OUTLINES = false;
-var DEBUG_RAYCAST = true;
+var DEBUG_RAYCAST = false;
 const LATENCY_COMPENSATION_LERP_FACTOR = 12;
 
 
