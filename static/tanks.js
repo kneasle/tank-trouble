@@ -51,10 +51,12 @@ const MOVEMENT_SPEED = 1; // square/s
 const BULLET_SPEED = 2;
 const BULLET_LIFETIME = 5; // seconds
 
-// Lag compensation/debug settings
+// Debug view settings
 var DEBUG_SERVER_TANKS = false;
 var DEBUG_RECT_OUTLINES = false;
 var DEBUG_RAYCAST = false;
+
+// Lag compensation settings
 const LATENCY_COMPENSATION_LERP_FACTOR = 12;
 
 
