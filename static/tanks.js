@@ -30,7 +30,6 @@ var dpr = 1;
 // Constants that are needed by the physics engine
 const TANK_WIDTH = 0.32;
 const TANK_LENGTH = 0.42;
-const BULLET_RADIUS = 0.05;
 
 // Display constants
 const TANK_OUTLINE_THICKNESS = 0.01;
@@ -50,9 +49,6 @@ const SHOOT_KEY = 88;
 // Gameplay constants
 const ROTATION_SPEED = 3; // rad/s
 const MOVEMENT_SPEED = 1; // square/s
-
-const BULLET_SPEED = 2;
-const BULLET_LIFETIME = 5; // seconds
 
 // Debug view settings
 var DEBUG_SERVER_TANKS = false;
@@ -297,12 +293,7 @@ function frame() {
     var projectilesToDestroy = [];
 
     for (const id in projectiles) {
-        var proj = projectiles[id];
-
-        proj.x += proj.velX * timeDelta;
-        proj.y += proj.velY * timeDelta;
-
-        if (Date.now() > proj.spawnTime + BULLET_LIFETIME * 1000) {
+        if (updateProjectile(projectiles[id])) {
             projectilesToDestroy.push(id);
         }
     }
@@ -410,12 +401,10 @@ function frame() {
         }
     }
 
-    // Draw the bullets
+    // Draw projectiles
     ctx.fillStyle = "black";
     for (const id in projectiles) {
-        ctx.beginPath();
-        ctx.arc(projectiles[id].x, projectiles[id].y, BULLET_RADIUS, 0, Math.PI * 2);
-        ctx.fill();
+        renderProjectile(ctx, projectiles[id]);
     }
 
     ctx.restore();
