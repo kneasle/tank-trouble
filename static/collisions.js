@@ -42,7 +42,7 @@ function bouncingRaycast(origin, directionVec, length) {
     return [origin].concat(recursiveBouncingRaycast(origin, directionVec, length, lines));
 }
 
-function raycast(origin, directionVec, precalculated_lines) {
+function raycast(origin, directionVec, precalculated_lines, minDist) {
     var lines = precalculated_lines || getAllWallBoundingLines();
 
     var bestIntersection = undefined;
@@ -53,7 +53,7 @@ function raycast(origin, directionVec, precalculated_lines) {
 
         if (i
             && i.rayMultiplier < bestIntersectionMultiplier 
-            && i.rayMultiplier > 0
+            && i.rayMultiplier > (minDist || 0.0001)
             && i.lineMultiplier >= 0
             && i.lineMultiplier <= 1
         ) {
