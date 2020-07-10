@@ -302,24 +302,6 @@ function frame() {
         proj.x += proj.velX * timeDelta;
         proj.y += proj.velY * timeDelta;
 
-        // Basic bouncing
-        if (proj.x < 0) {
-            proj.velX = -proj.velX;
-            proj.x = -proj.x;
-        }
-        if (proj.x > 1) {
-            proj.velX = -proj.velX;
-            proj.x = 1 * 2 - proj.x;
-        }
-        if (proj.y < 0) {
-            proj.velY = -proj.velY;
-            proj.y = -proj.y;
-        }
-        if (proj.y > 1) {
-            proj.velY = -proj.velY;
-            proj.y = 1 * 2 - proj.y;
-        }
-
         if (Date.now() > proj.spawnTime + BULLET_LIFETIME * 1000) {
             projectilesToDestroy.push(id);
         }
