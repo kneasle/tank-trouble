@@ -59,6 +59,8 @@ var DEBUG_SERVER_TANKS = false;
 var DEBUG_RECT_OUTLINES = false;
 var DEBUG_RAYCAST = false;
 
+var ATTACH_CAMERA_TO_TANK = true;
+
 // Lag compensation settings
 const LATENCY_COMPENSATION_LERP_FACTOR = 12;
 
@@ -364,8 +366,14 @@ function frame() {
     ctx.scale(dpr, dpr);
 
     ctx.translate(viewRect.width / 2, viewRect.height / 2);
-    ctx.scale(70, 70);
-    ctx.translate(-maze.width / 2, -maze.height / 2);
+    if (ATTACH_CAMERA_TO_TANK && myTank) {
+        ctx.scale(100, 100);
+        ctx.rotate(-myTank.r - Math.PI / 2);
+        ctx.translate(-myTank.x, -myTank.y);
+    } else {
+        ctx.scale(70, 70);
+        ctx.translate(-maze.width / 2, -maze.height / 2);
+    }
 
     // Draw the grid
     ctx.fillStyle = 'black';
