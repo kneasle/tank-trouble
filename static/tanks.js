@@ -265,9 +265,9 @@ function frame() {
                 var dY = sTank.y - tank.y;
                 var d = Math.sqrt(dX * dX + dY * dY);
 
+                /*
                 // We compare the cosines of the angles instead of the angles directly, because
                 // the cosine function removes the edge case of wrapping angles round the 2pi mark
-                /*
                 if (d > 0.1 || Math.cos(tank.r - sTank.r) < Math.cos(0.3)) {
                     tank.x = sTank.x;
                     tank.y = sTank.y;
