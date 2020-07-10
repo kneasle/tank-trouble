@@ -377,7 +377,7 @@ function frame() {
 
     // Draw lineSegments
     if (DEBUG_RECT_OUTLINES) {
-        var lines = getAllWallBoundingLines();
+        var lines = getAllWallBoundingLines(BULLET_RADIUS);
 
         for (var i = 0; i < lines.length; i++) {
             ctx.beginPath();
@@ -397,7 +397,8 @@ function frame() {
             var points = bouncingRaycast(
                 new Vec2(myTank.x, myTank.y),
                 new Vec2(Math.cos(myTank.r), Math.sin(myTank.r)),
-                BULLET_SPEED * BULLET_LIFETIME
+                BULLET_SPEED * BULLET_LIFETIME,
+                BULLET_RADIUS
             );
 
             if (points.length > 0) {
