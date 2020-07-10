@@ -54,8 +54,12 @@ const MOVEMENT_SPEED = 1; // square/s
 const BULLET_SPEED = 2;
 const BULLET_LIFETIME = 5; // seconds
 
-// Lag compensation/debug settings
-const SHOW_SERVER_TANKS = false;
+// Debug view settings
+var DEBUG_SERVER_TANKS = false;
+var DEBUG_RECT_OUTLINES = false;
+var DEBUG_RAYCAST = false;
+
+// Lag compensation settings
 const LATENCY_COMPENSATION_LERP_FACTOR = 12;
 
 
@@ -270,9 +274,9 @@ function frame() {
                 var dY = sTank.y - tank.y;
                 var d = Math.sqrt(dX * dX + dY * dY);
 
+                /*
                 // We compare the cosines of the angles instead of the angles directly, because
                 // the cosine function removes the edge case of wrapping angles round the 2pi mark
-                /*
                 if (d > 0.1 || Math.cos(tank.r - sTank.r) < Math.cos(0.3)) {
                     tank.x = sTank.x;
                     tank.y = sTank.y;
@@ -377,9 +381,50 @@ function frame() {
         drawTank(tanks[id]);
     }
 
-    if (SHOW_SERVER_TANKS) {
+    if (DEBUG_SERVER_TANKS) {
         for (const id in serverTanks) {
             drawTank(serverTanks[id], "rgba(0,0,0,0)");
+        }
+    }
+
+    // Draw lineSegments
+    if (DEBUG_RECT_OUTLINES) {
+        var lines = getAllWallBoundingLines(BULLET_RADIUS);
+
+        for (var i = 0; i < lines.length; i++) {
+            ctx.beginPath();
+
+            ctx.moveTo(lines[i].p1.x, lines[i].p1.y);
+            ctx.lineTo(lines[i].p2.x, lines[i].p2.y);
+
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 0.03;
+            ctx.stroke();
+        }
+    }
+
+    // Draw a raycast
+    if (DEBUG_RAYCAST) {
+        if (myTank) {
+            var points = bouncingRaycast(
+                new Vec2(myTank.x, myTank.y),
+                new Vec2(Math.cos(myTank.r), Math.sin(myTank.r)),
+                BULLET_SPEED * BULLET_LIFETIME,
+                BULLET_RADIUS
+            );
+
+            if (points.length > 0) {
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+
+                for (var i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+
+                ctx.lineWidth = 0.01;
+                ctx.strokeStyle = myTank.col;
+                ctx.stroke();
+            }
         }
     }
 
