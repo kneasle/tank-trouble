@@ -165,7 +165,7 @@ function onLoad() {
                 // Calculate the direction and location of the tank barrel
                 var dir = new Vec2(Math.cos(myTank.r), Math.sin(myTank.r));
 
-                var newId = socket.id + "|" + nextProjectileId;
+                var newId = params.name + "|" + nextProjectileId;
 
                 projectiles[newId] = spawnBullet(
                     new Vec2(myTank.x, myTank.y).add(dir.mul(TANK_LENGTH * (0.5 + BARREL_OVERHANG))),
