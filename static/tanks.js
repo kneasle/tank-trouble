@@ -505,6 +505,11 @@ function lerp(a, b, t) {
     return (1 - t) * a + t * b;
 }
 
+// Returns t such that lerp(a, b, t) = c.  Divides by 0 if a = b
+function inverseLerp(a, b, c) {
+    return (c - a) / (b - a);
+}
+
 function getMyTank() {
     return tanks[params.name];
 }
