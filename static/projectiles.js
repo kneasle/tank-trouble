@@ -45,8 +45,8 @@ function updateProjectile(proj, timeDelta) {
             // We do the 'has the bullet despawned' here, rather than as an if statement earlier,
             // because sometimes (very rarely), a millisecond will tick over between the if
             // statement evaluating Date.now() and the calculation of timeSinceSpawn and this will
-            // leave i being one more than the length of the array, which will cause a crash when
-            // access of that array element is attempted.
+            // leave i being equal to the length of the array, which will cause a crash when access
+            // of that array element is attempted.
             if (i == proj.path.length) {
                 return true;
             }
