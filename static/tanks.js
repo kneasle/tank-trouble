@@ -38,6 +38,8 @@ const BARREL_RADIUS = 0.1;
 const BARREL_OVERHANG = 0.2;
 const TURRET_RADIUS = 0.1;
 
+const TANK_CAMERA_ZOOM_FACTOR = 0.1; // Proportion of the diagonal length of the canvas window
+
 // Key bindings
 const KEY_LEFT = 75;
 const KEY_UP = 79;
@@ -337,9 +339,17 @@ function frame() {
     // Move the origin to the centre of the canvas window
     ctx.translate(viewRect.width / 2, viewRect.height / 2);
 
+    // Calculate the length from one corner to the opposite corner of the canvas
+    var diagonalLength = Math.sqrt(
+        viewRect.width * viewRect.width + viewRect.height * viewRect.height
+    );
+
     if (ATTACH_CAMERA_TO_TANK && myTank) {
         // Make the camera follow the tank
-        ctx.scale(100, 100);
+        ctx.scale(
+            diagonalLength * TANK_CAMERA_ZOOM_FACTOR,
+            diagonalLength * TANK_CAMERA_ZOOM_FACTOR
+        );
         ctx.rotate(-myTank.r - Math.PI / 2);
         ctx.translate(-myTank.x, -myTank.y);
     } else {
