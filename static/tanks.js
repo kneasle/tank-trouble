@@ -327,19 +327,25 @@ function frame() {
     // Clear the canvas
     ctx.clearRect(0, 0, viewRect.width, viewRect.height);
 
-    // Transform the canvas so that the map starts at (0, 0) and one unit corresponds to one
-    // square of the maze
+    /* Transform the canvas so that the map starts at (0, 0) and one unit corresponds to one
+     * square of the maze
+     */
+    
+    // Save the canvas' transformation matrix so that it can be restored at the end of every frame
     ctx.save();
 
     // Correct for high DPI displays
     ctx.scale(dpr, dpr);
 
+    // Move the origin to the centre of the canvas window
     ctx.translate(viewRect.width / 2, viewRect.height / 2);
     if (ATTACH_CAMERA_TO_TANK && myTank) {
+        // Make the camera follow the tank
         ctx.scale(100, 100);
         ctx.rotate(-myTank.r - Math.PI / 2);
         ctx.translate(-myTank.x, -myTank.y);
     } else {
+        // Make the camera static and make the maze fill the window
         ctx.scale(70, 70);
         ctx.translate(-maze.width / 2, -maze.height / 2);
     }
