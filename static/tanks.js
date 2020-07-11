@@ -334,9 +334,6 @@ function frame() {
     // Save the canvas' transformation matrix so that it can be restored at the end of every frame
     ctx.save();
 
-    // Correct for high DPI displays
-    ctx.scale(dpr, dpr);
-
     // Move the origin to the centre of the canvas window
     ctx.translate(viewRect.width / 2, viewRect.height / 2);
     if (ATTACH_CAMERA_TO_TANK && myTank) {
