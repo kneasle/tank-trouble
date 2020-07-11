@@ -339,17 +339,19 @@ function frame() {
     // Move the origin to the centre of the canvas window
     ctx.translate(viewRect.width / 2, viewRect.height / 2);
 
-    // Calculate the length from one corner to the opposite corner of the canvas
-    var diagonalLength = Math.sqrt(
-        viewRect.width * viewRect.width + viewRect.height * viewRect.height
-    );
-
     if (ATTACH_CAMERA_TO_TANK && myTank) {
-        // Make the camera follow the tank
+        // Calculate the length from one corner to the opposite corner of the canvas
+        var diagonalLength = Math.sqrt(
+            viewRect.width * viewRect.width + viewRect.height * viewRect.height
+        );
+        
+        // Scale all the drawing according to the size of the canvas
         ctx.scale(
             diagonalLength * TANK_CAMERA_ZOOM_FACTOR,
             diagonalLength * TANK_CAMERA_ZOOM_FACTOR
         );
+
+        // Make the camera follow the tank
         ctx.rotate(-myTank.r - Math.PI / 2);
         ctx.translate(-myTank.x, -myTank.y);
     } else {
