@@ -192,8 +192,6 @@ class GameState:
         """ Returns the state of the entire game in JSON. """
 
         return {
-            'width': self._maze_width,
-            'height': self._maze_height,
             'maze': {
                 'width': self._maze_width,
                 'height': self._maze_height,
