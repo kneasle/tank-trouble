@@ -58,7 +58,7 @@ var DEBUG_SERVER_TANKS = false;
 var DEBUG_RECT_OUTLINES = false;
 var DEBUG_RAYCAST = false;
 
-var ATTACH_CAMERA_TO_TANK = true;
+var ATTACH_CAMERA_TO_TANK = false;
 
 // Lag compensation settings
 const LATENCY_COMPENSATION_LERP_FACTOR = 12;
