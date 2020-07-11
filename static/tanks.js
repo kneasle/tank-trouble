@@ -30,7 +30,6 @@ var dpr = 1;
 // Constants that are needed by the physics engine
 const TANK_WIDTH = 0.32;
 const TANK_LENGTH = 0.42;
-const BULLET_RADIUS = 0.05;
 
 // Display constants
 const TANK_OUTLINE_THICKNESS = 0.01;
@@ -50,9 +49,6 @@ const SHOOT_KEY = 88;
 // Gameplay constants
 const ROTATION_SPEED = 3; // rad/s
 const MOVEMENT_SPEED = 1; // square/s
-
-const BULLET_SPEED = 2;
-const BULLET_LIFETIME = 5; // seconds
 
 // Debug view settings
 var DEBUG_SERVER_TANKS = false;
@@ -169,18 +165,14 @@ function onLoad() {
 
             if (myTank && myTank.isAlive) {
                 // Calculate the direction and location of the tank barrel
-                var dX = Math.cos(myTank.r);
-                var dY = Math.sin(myTank.r);
+                var dir = new Vec2(Math.cos(myTank.r), Math.sin(myTank.r));
 
-                var newId = socket.id + "|" + nextProjectileId;
+                var newId = params.name + "|" + nextProjectileId;
 
-                projectiles[newId] = {
-                    x: myTank.x + dX * TANK_LENGTH * (0.5 + BARREL_OVERHANG),
-                    y: myTank.y + dY * TANK_LENGTH * (0.5 + BARREL_OVERHANG),
-                    velX: dX * BULLET_SPEED,
-                    velY: dY * BULLET_SPEED,
-                    spawnTime: Date.now()
-                };
+                projectiles[newId] = spawnBullet(
+                    new Vec2(myTank.x, myTank.y).add(dir.mul(TANK_LENGTH * (0.5 + BARREL_OVERHANG))),
+                    dir
+                );
 
                 socket.emit("c_spawn_projectile", {
                     id: newId,
@@ -299,30 +291,7 @@ function frame() {
     var projectilesToDestroy = [];
 
     for (const id in projectiles) {
-        var proj = projectiles[id];
-
-        proj.x += proj.velX * timeDelta;
-        proj.y += proj.velY * timeDelta;
-
-        // Basic bouncing
-        if (proj.x < 0) {
-            proj.velX = -proj.velX;
-            proj.x = -proj.x;
-        }
-        if (proj.x > 1) {
-            proj.velX = -proj.velX;
-            proj.x = 1 * 2 - proj.x;
-        }
-        if (proj.y < 0) {
-            proj.velY = -proj.velY;
-            proj.y = -proj.y;
-        }
-        if (proj.y > 1) {
-            proj.velY = -proj.velY;
-            proj.y = 1 * 2 - proj.y;
-        }
-
-        if (Date.now() > proj.spawnTime + BULLET_LIFETIME * 1000) {
+        if (updateProjectile(projectiles[id], timeDelta)) {
             projectilesToDestroy.push(id);
         }
     }
@@ -389,13 +358,19 @@ function frame() {
         drawTank(tanks[id]);
     }
 
+    // Draw projectiles
+    ctx.fillStyle = "black";
+    for (const id in projectiles) {
+        renderProjectile(ctx, projectiles[id]);
+    }
+
+    // ===== DEBUG DRAWING =====
     if (DEBUG_SERVER_TANKS) {
         for (const id in serverTanks) {
             drawTank(serverTanks[id], "rgba(0,0,0,0)");
         }
     }
 
-    // Draw lineSegments
     if (DEBUG_RECT_OUTLINES) {
         var lines = getAllWallBoundingLines(BULLET_RADIUS);
 
@@ -411,7 +386,6 @@ function frame() {
         }
     }
 
-    // Draw a raycast
     if (DEBUG_RAYCAST) {
         if (myTank) {
             var points = bouncingRaycast(
@@ -436,16 +410,10 @@ function frame() {
         }
     }
 
-    // Draw the bullets
-    ctx.fillStyle = "black";
-    for (const id in projectiles) {
-        ctx.beginPath();
-        ctx.arc(projectiles[id].x, projectiles[id].y, BULLET_RADIUS, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
+    // Restore the window to standard transformation
     ctx.restore();
 
+    // Request another frame
     window.requestAnimationFrame(frame);
 }
 
@@ -543,6 +511,11 @@ function inverseTransformCoord(coord, origin, rotation) {
 /* ===== UTILITIES ===== */
 function lerp(a, b, t) {
     return (1 - t) * a + t * b;
+}
+
+// Returns t such that lerp(a, b, t) = c.  Divides by 0 if a = b
+function inverseLerp(a, b, c) {
+    return (c - a) / (b - a);
 }
 
 function getMyTank() {
