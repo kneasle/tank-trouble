@@ -5,23 +5,55 @@ const BULLET_LIFETIME = 5; // seconds
 const BULLET_TYPE = "Bullet";
 
 function spawnBullet(spawnPoint, direction) {
+    var path = bouncingRaycast(spawnPoint, direction, BULLET_SPEED * BULLET_LIFETIME);
+
+    var annotatedPath = [];
+    var cumulativeLength = 0;
+
+    for (var i = 0; i < path.length; i++) {
+        if (i > 0) {
+            cumulativeLength += path[i].sub(path[i - 1]).length();
+        }
+
+        annotatedPath.push({
+            x: path[i].x,
+            y: path[i].y,
+            time: cumulativeLength / BULLET_SPEED
+        });
+    }
+
     return {
         type: BULLET_TYPE,
-        x: spawnPoint.x,
-        y: spawnPoint.y,
-        velX: direction.x * BULLET_SPEED,
-        velY: direction.y * BULLET_SPEED,
-        spawnTime: Date.now()
+        spawnTime: Date.now(),
+        path: annotatedPath
     };
 }
 
 // Updates the projectile, and returns true if it should despawn
 function updateProjectile(proj, timeDelta) {
     if (proj.type == BULLET_TYPE) {
-        proj.x += proj.velX * timeDelta;
-        proj.y += proj.velY * timeDelta;
+        if ((Date.now() - proj.spawnTime) / 1000 > BULLET_LIFETIME) {
+            return true;
+        } else {
+            var timeSinceSpawn = (Date.now() - proj.spawnTime) / 1000;
 
-        return Date.now() > proj.spawnTime + BULLET_LIFETIME * 1000;
+            var i = 0;
+            while (proj.path[i].time < timeSinceSpawn) {
+                i += 1;
+            }
+
+            var lerpFactor = inverseLerp(proj.path[i - 1].time, proj.path[i].time, timeSinceSpawn);
+            var vec = vecLerp(
+                new Vec2(proj.path[i - 1].x, proj.path[i - 1].y),
+                new Vec2(proj.path[i].x, proj.path[i].y),
+                lerpFactor
+            );
+
+            proj.x = vec.x;
+            proj.y = vec.y;
+
+            return false;
+        }
     } else {
         console.error("Unknown projectile type " + proj.type);
 
