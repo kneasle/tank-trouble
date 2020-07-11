@@ -37,7 +37,11 @@ function updateProjectile(proj, timeDelta) {
         } else {
             var timeSinceSpawn = (Date.now() - proj.spawnTime) / 1000;
 
-            var i = 0;
+            // We start i at 1, because if this gets run in the same millisecond that the bullet
+            // spawn, the loop guard will fail on the first iteration, and i will stay set to 0,
+            // which will cause `proj.path[i - 1]` after the loop to access the -1st element of
+            // proj.path, which is undefined and will cause a crash.
+            var i = 1;
             while (proj.path[i].time < timeSinceSpawn) {
                 i += 1;
             }
