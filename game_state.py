@@ -114,13 +114,19 @@ class GameState:
     def start_new_game(self):
         """ Starts a new game. """
 
-        # Generate maze
-        self._maze_width = 10
-        self._maze_height = 5
+        # Make a random maze size, biased with the number of players
+        size_bias = math.sqrt(max(1, len(self._tanks)))
 
+        self._maze_width = random.randint(3, int(7.0 * size_bias))
+        self._maze_height = random.randint(3, int(5.0 * size_bias))
+
+        # Generate the maze in 'right and down walls' format
         maze = maze_gen.generate_maze(self._maze_width, self._maze_height)
+
+        # Print the new maze for debugging purposes
         maze_gen.print_maze(maze)
 
+        # Convert the maze into rectangles
         self._maze_walls = maze_gen.generate_walls_from_maze(
             self._maze_width,
             self._maze_height,
@@ -192,8 +198,6 @@ class GameState:
         """ Returns the state of the entire game in JSON. """
 
         return {
-            'width': self._maze_width,
-            'height': self._maze_height,
             'maze': {
                 'width': self._maze_width,
                 'height': self._maze_height,

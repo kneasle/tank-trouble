@@ -38,6 +38,9 @@ const BARREL_RADIUS = 0.1;
 const BARREL_OVERHANG = 0.2;
 const TURRET_RADIUS = 0.1;
 
+const MAZE_FILL_FACTOR = 0.95; // What proportion of the canvas should be filled by the maze
+const TANK_CAMERA_ZOOM_FACTOR = 0.1; // Proportion of the diagonal length of the canvas window
+
 // Key bindings
 const KEY_LEFT = 75;
 const KEY_UP = 79;
@@ -55,7 +58,7 @@ var DEBUG_SERVER_TANKS = false;
 var DEBUG_RECT_OUTLINES = false;
 var DEBUG_RAYCAST = false;
 
-var ATTACH_CAMERA_TO_TANK = true;
+var ATTACH_CAMERA_TO_TANK = false;
 
 // Lag compensation settings
 const LATENCY_COMPENSATION_LERP_FACTOR = 12;
@@ -327,20 +330,46 @@ function frame() {
     // Clear the canvas
     ctx.clearRect(0, 0, viewRect.width, viewRect.height);
 
-    // Transform the canvas so that the map starts at (0, 0) and one unit corresponds to one
-    // square of the maze
+    /* Transform the canvas so that the map starts at (0, 0) and one unit corresponds to one
+     * square of the maze
+     */
+    
+    // Save the canvas' transformation matrix so that it can be restored at the end of every frame
     ctx.save();
 
-    // Correct for high DPI displays
-    ctx.scale(dpr, dpr);
-
+    // Move the origin to the centre of the canvas window
     ctx.translate(viewRect.width / 2, viewRect.height / 2);
+
     if (ATTACH_CAMERA_TO_TANK && myTank) {
-        ctx.scale(100, 100);
+        /* MAKE THE CAMERA FOLLOW THE TANK. */
+
+        // Calculate the length from one corner to the opposite corner of the canvas
+        var diagonalLength = Math.sqrt(
+            viewRect.width * viewRect.width + viewRect.height * viewRect.height
+        );
+        
+        // Scale all the drawing according to the size of the canvas
+        ctx.scale(
+            diagonalLength * TANK_CAMERA_ZOOM_FACTOR,
+            diagonalLength * TANK_CAMERA_ZOOM_FACTOR
+        );
+
+        // Move the camera to be above the tank, with the tank facing upwards
         ctx.rotate(-myTank.r - Math.PI / 2);
         ctx.translate(-myTank.x, -myTank.y);
     } else {
-        ctx.scale(70, 70);
+        /* MAKE THE CAMERA STATIC AND MAKE THE MAZE FILL THE WINDOW */
+        
+        // Find out what scale to use in order to fill the window with the maze
+        var scale = Math.min(
+            viewRect.width / maze.width,
+            viewRect.height / maze.height
+        ) * MAZE_FILL_FACTOR;
+
+        // Scale the canvas by the required scale
+        ctx.scale(scale * MAZE_FILL_FACTOR, scale * MAZE_FILL_FACTOR);
+
+        // Translate so that the centre of the maze is the centre of the canvas
         ctx.translate(-maze.width / 2, -maze.height / 2);
     }
 
