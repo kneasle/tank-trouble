@@ -1,5 +1,5 @@
 const BULLET_RADIUS = 0.05;
-const BULLET_SPEED = 2;
+const BULLET_SPEED = 2.2;
 const BULLET_LIFETIME = 5; // seconds
 
 const BULLET_TYPE = "Bullet";

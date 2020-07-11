@@ -50,8 +50,8 @@ const KEY_DOWN = 76;
 const SHOOT_KEY = 88;
 
 // Gameplay constants
-const ROTATION_SPEED = 3; // rad/s
-const MOVEMENT_SPEED = 1; // square/s
+const ROTATION_SPEED = 5; // rad/s
+const MOVEMENT_SPEED = 2; // square/s
 
 // Debug view settings
 var DEBUG_SERVER_TANKS = false;
