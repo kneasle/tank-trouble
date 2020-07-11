@@ -341,6 +341,8 @@ function frame() {
     ctx.translate(viewRect.width / 2, viewRect.height / 2);
 
     if (ATTACH_CAMERA_TO_TANK && myTank) {
+        /* MAKE THE CAMERA FOLLOW THE TANK. */
+
         // Calculate the length from one corner to the opposite corner of the canvas
         var diagonalLength = Math.sqrt(
             viewRect.width * viewRect.width + viewRect.height * viewRect.height
@@ -352,18 +354,22 @@ function frame() {
             diagonalLength * TANK_CAMERA_ZOOM_FACTOR
         );
 
-        // Make the camera follow the tank
+        // Move the camera to be above the tank, with the tank facing upwards
         ctx.rotate(-myTank.r - Math.PI / 2);
         ctx.translate(-myTank.x, -myTank.y);
     } else {
-        // Make the camera static and make the maze fill the window
+        /* MAKE THE CAMERA STATIC AND MAKE THE MAZE FILL THE WINDOW */
+        
+        // Find out what scale to use in order to fill the window with the maze
         var scale = Math.min(
             viewRect.width / maze.width,
             viewRect.height / maze.height
         ) * MAZE_FILL_FACTOR;
 
+        // Scale the canvas by the required scale
         ctx.scale(scale * MAZE_FILL_FACTOR, scale * MAZE_FILL_FACTOR);
 
+        // Translate so that the centre of the maze is the centre of the canvas
         ctx.translate(-maze.width / 2, -maze.height / 2);
     }
 
