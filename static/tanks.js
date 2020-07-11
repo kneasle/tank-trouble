@@ -53,6 +53,8 @@ const SHOOT_KEY = 88;
 const ROTATION_SPEED = 3; // rad/s
 const MOVEMENT_SPEED = 1; // square/s
 
+const MAX_OWNED_BULLETS = 5; // Number of bullets allowed to be owned by one tank at a time
+
 // Debug view settings
 var DEBUG_SERVER_TANKS = false;
 var DEBUG_RECT_OUTLINES = false;
@@ -164,9 +166,18 @@ function onLoad() {
         pressedKeys[e.keyCode] = true;
 
         if (e.keyCode == SHOOT_KEY) {
+            // Find the number of currently existing bullets owned by this tank by iterating over
+            // the IDs, and testing if they start with the current username.
+            var numOwnedBullets = 0;
+            for (const id in projectiles) {
+                if (projectiles[id].type == BULLET_TYPE && id.startsWith(params.name)) {
+                    numOwnedBullets += 1;
+                }
+            }
+
             var myTank = getMyTank();
 
-            if (myTank && myTank.isAlive) {
+            if (numOwnedBullets < MAX_OWNED_BULLETS && myTank && myTank.isAlive) {
                 // Calculate the direction and location of the tank barrel
                 var dir = new Vec2(Math.cos(myTank.r), Math.sin(myTank.r));
 
