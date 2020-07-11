@@ -32,32 +32,37 @@ function spawnBullet(spawnPoint, direction) {
 // Updates the projectile, and returns true if it should despawn
 function updateProjectile(proj, timeDelta) {
     if (proj.type == BULLET_TYPE) {
-        if ((Date.now() - proj.spawnTime) / 1000 > BULLET_LIFETIME) {
-            return true;
-        } else {
-            var timeSinceSpawn = (Date.now() - proj.spawnTime) / 1000;
+        var timeSinceSpawn = (Date.now() - proj.spawnTime) / 1000;
 
-            // We start i at 1, because if this gets run in the same millisecond that the bullet
-            // spawn, the loop guard will fail on the first iteration, and i will stay set to 0,
-            // which will cause `proj.path[i - 1]` after the loop to access the -1st element of
-            // proj.path, which is undefined and will cause a crash.
-            var i = 1;
-            while (proj.path[i].time < timeSinceSpawn) {
-                i += 1;
+        // We start i at 1, because if this gets run in the same millisecond that the bullet
+        // spawn, the loop guard will fail on the first iteration, and i will stay set to 0,
+        // which will cause `proj.path[i - 1]` after the loop to access the -1st element of
+        // proj.path, which is undefined and will cause a crash.
+        var i = 1;
+        while (proj.path[i].time < timeSinceSpawn) {
+            i += 1;
+
+            // We do the 'has the bullet despawned' here, rather than as an if statement earlier,
+            // because sometimes (very rarely), a millisecond will tick over between the if
+            // statement evaluating Date.now() and the calculation of timeSinceSpawn and this will
+            // leave i being one more than the length of the array, which will cause a crash when
+            // access of that array element is attempted.
+            if (i == proj.path.length) {
+                return true;
             }
-
-            var lerpFactor = inverseLerp(proj.path[i - 1].time, proj.path[i].time, timeSinceSpawn);
-            var vec = vecLerp(
-                new Vec2(proj.path[i - 1].x, proj.path[i - 1].y),
-                new Vec2(proj.path[i].x, proj.path[i].y),
-                lerpFactor
-            );
-
-            proj.x = vec.x;
-            proj.y = vec.y;
-
-            return false;
         }
+
+        var lerpFactor = inverseLerp(proj.path[i - 1].time, proj.path[i].time, timeSinceSpawn);
+        var vec = vecLerp(
+            new Vec2(proj.path[i - 1].x, proj.path[i - 1].y),
+            new Vec2(proj.path[i].x, proj.path[i].y),
+            lerpFactor
+        );
+
+        proj.x = vec.x;
+        proj.y = vec.y;
+
+        return false;
     } else {
         console.error("Unknown projectile type " + proj.type);
 
