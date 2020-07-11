@@ -43,5 +43,10 @@ function Vec2(x, y) {
 
     this.reflectInDirection = function(dir) {
         return this.sub(this.projectOnto(dir).mul(2));
-    }
+    };
+}
+
+// Calculate (1 - t)a + tb
+function vecLerp(a, b, t) {
+    return a.mul(1 - t).add(b.mul(t));
 }
