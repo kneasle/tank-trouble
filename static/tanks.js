@@ -38,6 +38,7 @@ const BARREL_RADIUS = 0.1;
 const BARREL_OVERHANG = 0.2;
 const TURRET_RADIUS = 0.1;
 
+const MAZE_FILL_FACTOR = 0.95; // What proportion of the canvas should be filled by the maze
 const TANK_CAMERA_ZOOM_FACTOR = 0.1; // Proportion of the diagonal length of the canvas window
 
 // Key bindings
@@ -356,7 +357,13 @@ function frame() {
         ctx.translate(-myTank.x, -myTank.y);
     } else {
         // Make the camera static and make the maze fill the window
-        ctx.scale(70, 70);
+        var scale = Math.min(
+            viewRect.width / maze.width,
+            viewRect.height / maze.height
+        ) * MAZE_FILL_FACTOR;
+
+        ctx.scale(scale * MAZE_FILL_FACTOR, scale * MAZE_FILL_FACTOR);
+
         ctx.translate(-maze.width / 2, -maze.height / 2);
     }
 
