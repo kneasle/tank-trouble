@@ -5,7 +5,7 @@ const BULLET_LIFETIME = 5; // seconds
 const BULLET_TYPE = "Bullet";
 
 function spawnBullet(spawnPoint, direction) {
-    var path = bouncingRaycast(spawnPoint, direction, BULLET_SPEED * BULLET_LIFETIME);
+    var path = bouncingRaycast(spawnPoint, direction, BULLET_SPEED * BULLET_LIFETIME, BULLET_RADIUS);
 
     var annotatedPath = [];
     var cumulativeLength = 0;
