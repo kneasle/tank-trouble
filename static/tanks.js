@@ -247,6 +247,7 @@ function frame() {
     // Update all the tanks' positions
     for (const id in tanks) {
         var tank = tanks[id];
+        var sTank = serverTanks[id];
 
         // Edit the tank location and rotation on separate variables, so that we can perform
         // collision detection and decide actually where we want to move the tank
@@ -259,8 +260,6 @@ function frame() {
             // something different.  For now do nothing - the client knows best.
         } else {
             // How to update the position of other tanks according to what the server says.
-            var sTank = serverTanks[id];
-
             if (sTank) {
                 // Copy across the velocities, so that the tank will do something approximately
                 // what the server is saying - but that is smooth regardless.
