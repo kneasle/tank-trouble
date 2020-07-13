@@ -248,6 +248,12 @@ function frame() {
     for (const id in tanks) {
         var tank = tanks[id];
 
+        // Edit the tank location and rotation on separate variables, so that we can perform
+        // collision detection and decide actually where we want to move the tank
+        var newX = tank.x;
+        var newY = tank.y;
+        var newR = tank.r;
+
         if (id == params.name) {
             // How to update the position of currently controlled tanks if the server tells us
             // something different.  For now do nothing - the client knows best.
@@ -261,17 +267,24 @@ function frame() {
                 tank.angularVelocity = sTank.angularVelocity;
                 tank.forwardVelocity = sTank.forwardVelocity;
 
-                tank.x = lerp(tank.x, sTank.x, LATENCY_COMPENSATION_LERP_FACTOR * timeDelta);
-                tank.y = lerp(tank.y, sTank.y, LATENCY_COMPENSATION_LERP_FACTOR * timeDelta);
-                tank.r = lerp(tank.r, sTank.r, LATENCY_COMPENSATION_LERP_FACTOR * timeDelta);
+                newX = lerp(newX, sTank.x, LATENCY_COMPENSATION_LERP_FACTOR * timeDelta);
+                newY = lerp(newY, sTank.y, LATENCY_COMPENSATION_LERP_FACTOR * timeDelta);
+                newR = lerp(newR, sTank.r, LATENCY_COMPENSATION_LERP_FACTOR * timeDelta);
             }
         }
 
+        // Update the tank's position
         var movementStep = tank.forwardVelocity * MOVEMENT_SPEED * timeDelta;
+        newX += movementStep * Math.cos(newR);
+        newY += movementStep * Math.sin(newR);
 
-        tank.r += tank.angularVelocity * timeDelta * ROTATION_SPEED;
-        tank.x += movementStep * Math.cos(tank.r);
-        tank.y += movementStep * Math.sin(tank.r);
+        // Update the tank's rotation
+        newR += tank.angularVelocity * timeDelta * ROTATION_SPEED;
+
+        // Move these changes onto the tank (without collision detection for now)
+        tank.x = newX;
+        tank.y = newY;
+        tank.r = newR;
     }
 
     // Update all projectiles
