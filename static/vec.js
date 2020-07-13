@@ -44,6 +44,18 @@ function Vec2(x, y) {
     this.reflectInDirection = function(dir) {
         return this.sub(this.projectOnto(dir).mul(2));
     };
+
+    this.rotatedBy = function(angle) {
+        return new Vec2(
+            this.x * Math.cos(angle) - this.y * Math.sin(angle),
+            this.x * Math.sin(angle) + this.y * Math.cos(angle)
+        );
+    };
+}
+
+// Copies the x, y values out of an object and turns them into a Vec2
+function Vec2from(obj) {
+    return new Vec2(obj.x, obj.y);
 }
 
 // Calculate (1 - t)a + tb
