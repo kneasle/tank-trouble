@@ -305,7 +305,7 @@ function frame() {
     if (myTank && myTank.isAlive) {
         for (const id in projectiles) {
             var proj = projectiles[id];
-            var tankSpaceCoord = inverseTransformCoord(proj, myTank, myTank.r);
+            var tankSpaceCoord = inverseTransformCoord(Vec2from(proj), Vec2from(myTank), myTank.r);
 
             if (Math.abs(tankSpaceCoord.x) <= TANK_LENGTH / 2 + BULLET_RADIUS
              && Math.abs(tankSpaceCoord.y) <= TANK_WIDTH / 2 + BULLET_RADIUS
@@ -511,23 +511,11 @@ function drawLiveTank(tank, fillOverride) {
 
 /* ===== COLLISION ENGINE CODE ===== */
 function transformCoord(coord, origin, rotation) {
-    var rotatedX = coord.x * Math.cos(rotation) - coord.y * Math.sin(rotation);
-    var rotatedY = coord.x * Math.sin(rotation) + coord.y * Math.cos(rotation);
-
-    return {
-        x: rotatedX + origin.x,
-        y: rotatedY + origin.y
-    };
+    return coord.rotatedBy(rotation).add(origin);
 }
 
 function inverseTransformCoord(coord, origin, rotation) {
-    var translatedX = coord.x - origin.x;
-    var translatedY = coord.y - origin.y;
-
-    return {
-        x: translatedX * Math.cos(-rotation) - translatedY * Math.sin(-rotation),
-        y: translatedX * Math.sin(-rotation) + translatedY * Math.cos(-rotation)
-    };
+    return coord.sub(origin).rotatedBy(rotation);
 }
 
 
