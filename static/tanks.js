@@ -228,12 +228,12 @@ function frame() {
 
     if (myTank && myTank.isAlive) {
         myTank.angularVelocity = 0;
-        if (pressedKeys[KEY_LEFT ] == true) { myTank.angularVelocity -= 1; }
-        if (pressedKeys[KEY_RIGHT] == true) { myTank.angularVelocity += 1; }
+        if (pressedKeys[KEY_LEFT ] == true) { myTank.angularVelocity -= ROTATION_SPEED; }
+        if (pressedKeys[KEY_RIGHT] == true) { myTank.angularVelocity += ROTATION_SPEED; }
 
         myTank.forwardVelocity = 0;
-        if (pressedKeys[KEY_DOWN] == true) { myTank.forwardVelocity -= 1; }
-        if (pressedKeys[KEY_UP  ] == true) { myTank.forwardVelocity += 1; }
+        if (pressedKeys[KEY_DOWN] == true) { myTank.forwardVelocity -= MOVEMENT_SPEED; }
+        if (pressedKeys[KEY_UP  ] == true) { myTank.forwardVelocity += MOVEMENT_SPEED; }
 
         var isMoving = myTank.angularVelocity != 0 || myTank.forwardVelocity != 0;
 
@@ -273,12 +273,12 @@ function frame() {
         }
 
         // Update the tank's position
-        var movementStep = tank.forwardVelocity * MOVEMENT_SPEED * timeDelta;
+        var movementStep = tank.forwardVelocity * timeDelta;
         newX += movementStep * Math.cos(newR);
         newY += movementStep * Math.sin(newR);
 
         // Update the tank's rotation
-        newR += tank.angularVelocity * timeDelta * ROTATION_SPEED;
+        newR += tank.angularVelocity * timeDelta;
 
         // Move these changes onto the tank (without collision detection for now)
         tank.x = newX;
