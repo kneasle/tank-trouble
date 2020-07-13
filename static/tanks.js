@@ -244,6 +244,9 @@ function frame() {
         wasMovingLastFrame = isMoving;
     }
 
+    /* PRECALCULATE THE WALL STATE, SINCE IT WILL NOT CHANGE PER TANK */
+    var wall_lines = getAllWallBoundingLines()
+
     // Update all the tanks' positions
     for (const id in tanks) {
         // Find the client and server tank states.  `tank` will be what is displayed directly
@@ -288,7 +291,40 @@ function frame() {
         // Update the tank's rotation
         newR += tank.angularVelocity * timeDelta;
 
-        // Move these changes onto the tank (without collision detection for now)
+        /* ===== COLLISION DETECTION ===== */
+        // This works by first looping over all the walls, and compiling all the constraints on
+        // where the tank can be.  These will then be solved for the minimum movement of the tank
+        // required to satisfy them and that movement will be applied to the tank.
+
+        /* CONSTRAINT FINDING */
+        // An array to store all the points on the tank, and how they're intersecting with the walls
+        var constraints = []
+
+        var corners = [
+            new Vec2(-TANK_LENGTH / 2, -TANK_WIDTH / 2),
+            new Vec2(-TANK_LENGTH / 2, TANK_WIDTH / 2),
+            new Vec2(TANK_LENGTH / 2, -TANK_WIDTH/ 2),
+            new Vec2(TANK_LENGTH / 2, TANK_WIDTH / 2)
+        ];
+
+        for (var i = 0; i < corners.length; i++) {
+            var corner = corners[i];
+
+            var lastLocation = transformCoord(corner, Vec2from(tank), tank.r);
+            var nextLocation = transformCoord(corner, new Vec2(newX, newY), newR);
+            var dir = nextLocation.sub(lastLocation);
+
+            if (dir.length() <= 0.0001) {
+                continue;
+            }
+
+            var intersection = raycast(lastLocation, dir, wall_lines, 0, 1);
+
+            if (intersection) {
+                console.log(intersection);
+            }
+        }
+
         tank.x = newX;
         tank.y = newY;
         tank.r = newR;
