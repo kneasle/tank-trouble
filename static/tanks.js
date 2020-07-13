@@ -246,6 +246,10 @@ function frame() {
 
     // Update all the tanks' positions
     for (const id in tanks) {
+        // Find the client and server tank states.  `tank` will be what is displayed directly
+        // to the screen, and must be moved smoothly, whereas `sTank` stores the last sstate
+        // of the tank as recieved from the server.  This is very jerky, and this code is here
+        // to smooth this out
         var tank = tanks[id];
         var sTank = serverTanks[id];
 
@@ -266,6 +270,10 @@ function frame() {
                 tank.angularVelocity = sTank.angularVelocity;
                 tank.forwardVelocity = sTank.forwardVelocity;
 
+                // Interpolate between what the tank is currently doing, and what the server thinks
+                // the tank should be doing.  This will completely remove diversion and smooth out
+                // the gameplay, at the cost of slightly increased latency, and a tiny bit of
+                // rubber banding occasionally.
                 newX = lerp(newX, sTank.x, LATENCY_COMPENSATION_LERP_FACTOR * timeDelta);
                 newY = lerp(newY, sTank.y, LATENCY_COMPENSATION_LERP_FACTOR * timeDelta);
                 newR = lerp(newR, sTank.r, LATENCY_COMPENSATION_LERP_FACTOR * timeDelta);
