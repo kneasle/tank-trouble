@@ -311,6 +311,7 @@ function frame() {
         // An array to store all the points on the tank, and how they're intersecting with the walls
         var constraints = []
 
+        // The corners of the tank that we should do collision testing with
         var corners = [
             new Vec2(-TANK_LENGTH / 2, -TANK_WIDTH / 2),
             new Vec2(-TANK_LENGTH / 2, TANK_WIDTH / 2),
@@ -321,10 +322,14 @@ function frame() {
         for (var i = 0; i < corners.length; i++) {
             var corner = corners[i];
 
+            // Calculate where this corner has moved from and to
             var lastLocation = transformCoord(corner, Vec2from(tank), tank.r);
             var nextLocation = transformCoord(corner, new Vec2(newX, newY), newR);
+
+            // Calculate this as a vector
             var dir = nextLocation.sub(lastLocation);
 
+            // Ignore this corner if it hasn't moved
             if (dir.length() <= 0.0001) {
                 continue;
             }
