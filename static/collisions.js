@@ -42,11 +42,11 @@ function bouncingRaycast(origin, directionVec, length, padding) {
     return [origin].concat(recursiveBouncingRaycast(origin, directionVec, length, lines));
 }
 
-function raycast(origin, directionVec, precalculatedLines, minDist) {
+function raycast(origin, directionVec, precalculatedLines, minDist, maxDist) {
     var lines = precalculatedLines || getAllWallBoundingLines();
 
     var bestIntersection = undefined;
-    var bestIntersectionMultiplier = Infinity;
+    var bestIntersectionMultiplier = maxDist || Infinity;
 
     for (var l = 0; l < lines.length; l++) {
         let i = intersection(origin, directionVec, lines[l]);
