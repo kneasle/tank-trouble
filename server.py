@@ -13,12 +13,13 @@ from engineio.payload import Payload
 from game_state import GameState
 
 
-game_state = GameState() # pylint: disable=invalid-name
+game_state = GameState()  # pylint: disable=invalid-name
 
 # Initialise the flask-socketio server
-app = Flask(__name__) # pylint: disable=invalid-name
+app = Flask(__name__)  # pylint: disable=invalid-name
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
-socketio = SocketIO(app, async_mode='threading') # pylint: disable=invalid-name
+socketio = SocketIO(
+    app, async_mode='threading')  # pylint: disable=invalid-name
 
 Payload.max_decode_packets = 15
 

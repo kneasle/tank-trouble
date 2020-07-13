@@ -39,7 +39,6 @@ def generate_maze(size_x, size_y, density=0.9):
             self.group_id = group_id
             self.position = position
 
-
     class Edge:
         """
         A simple class to hold a single connection between two Nodes, which may or may not have a
@@ -50,7 +49,6 @@ def generate_maze(size_x, size_y, density=0.9):
             self.orientation = orientation
             self.position = position
             self.enabled = enabled
-
 
     nodes = [Node(i + j * size_x, (i, j))
              for j in range(size_y)

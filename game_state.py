@@ -28,22 +28,21 @@ class GameState:
 
         self._projectiles = {}
 
-
     # Tank editing functions
+
     def add_tank(self, colour, name, sid):
         """ Add a new tank, and spawn it in an appropriate location. """
 
         (x, y) = self._get_all_centres_shuffled()[0]
 
-        self._tanks[name] = Tank(x, y, random.random() * math.pi * 2, colour, name, sid)
+        self._tanks[name] = Tank(x, y, random.random()
+                                 * math.pi * 2, colour, name, sid)
         self._scoreboard[name] = 0
-
 
     def update_tank(self, tag, tank_json):
         """ Update a tank with some JSON data given by a client. """
 
         self._tanks[tag].update_from_json(tank_json)
-
 
     def explode_tank(self, tag, projectile_tag):
         """ Blow up a tank, and remove the projectile that blew it up. """
@@ -54,7 +53,6 @@ class GameState:
 
         self.update_projectiles()
 
-
     def delete_tank(self, tag):
         """ Permanently delete a tank from the game. """
 
@@ -62,18 +60,15 @@ class GameState:
 
         # Don't delete the scoreboard in case the tank arrives back into the game
 
-
     def get_tank(self, tag):
         """ Returns the tank with a given tag. """
 
         return self._tanks[tag]
 
-
     def has_tank(self, tag):
         """ Returns true if a tank with the given tag is in the game. """
 
         return tag in self._tanks
-
 
     def add_projectile(self, tag, json):
         """ Spawns a new projectile given JSON data from the client. """
@@ -81,7 +76,6 @@ class GameState:
         self._projectiles[tag] = json
 
         self.update_projectiles()
-
 
     def on_disconnect(self, sid):
         """ Called when a given sid disconnects. """
@@ -103,13 +97,12 @@ class GameState:
 
         return kicked_tags
 
-
     # Game start and stop stuff
+
     def tanks_still_alive(self):
         """ Returns a list of all the surviving tanks. """
 
         return [tag for tag in self._tanks if self._tanks[tag].is_alive()]
-
 
     def start_new_game(self):
         """ Starts a new game. """
@@ -144,7 +137,6 @@ class GameState:
         # Make all projectiles despawn
         self._projectiles = {}
 
-
     def _get_all_centres_shuffled(self):
         """
         Returns all the possible centres in the game, in some random order.  Used for deciding
@@ -173,7 +165,6 @@ class GameState:
 
             assert tanks_alive == []
 
-
     def update_projectiles(self):
         """ Update all the projectiles, despawning the ones that have outlived their lifetime. """
 
@@ -186,13 +177,12 @@ class GameState:
         for t in tags_to_despawn:
             del self._projectiles[t]
 
-
     # JSON exporting stuff
+
     def tanks_json(self):
         """ Returns the state of just the tanks in JSON. """
 
         return {tag: self._tanks[tag].to_json() for tag in self._tanks}
-
 
     def entire_state_json(self):
         """ Returns the state of the entire game in JSON. """
