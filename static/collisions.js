@@ -85,10 +85,10 @@ function getAllWallBoundingLines(padding) {
         var bottomRight = new Vec2(maxX, maxY);
 
         lineSegments.push(
-            { p1: topLeft, p2: topRight }, // Top
-            { p1: topRight, p2: bottomRight }, // Right
-            { p1: bottomRight, p2: bottomLeft }, // Bottom
-            { p1: bottomLeft, p2: topLeft } // Left
+            { p1: topRight, p2: topLeft }, // Top
+            { p1: topLeft, p2: bottomLeft }, // Left
+            { p1: bottomLeft, p2: bottomRight }, // Bottom
+            { p1: bottomRight, p2: topRight } // Right
         );
     }
 
