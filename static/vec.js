@@ -58,6 +58,30 @@ function Vec2from(obj) {
     return new Vec2(obj.x, obj.y);
 }
 
+function Vec2_ZERO() {
+    return new Vec2(0, 0);
+}
+
+function Vec2_ONE() {
+    return new Vec2(1, 1);
+}
+
+function Vec2_LEFT() {
+    return new Vec2(1, 0);
+}
+
+function Vec2_RIGHT() {
+    return new Vec2(-1, 0);
+}
+
+function Vec2_UP() {
+    return new Vec2(0, -1);
+}
+
+function Vec2_DOWN() {
+    return new Vec2(0, 1);
+}
+
 // Calculate (1 - t)a + tb
 function vecLerp(a, b, t) {
     return a.mul(1 - t).add(b.mul(t));
