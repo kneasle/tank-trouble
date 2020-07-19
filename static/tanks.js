@@ -334,7 +334,7 @@ function frame() {
                 continue;
             }
 
-            var intersection = raycast(lastLocation, dir, wall_lines, 0, 1);
+            var intersection = raycast(lastLocation, dir, wall_lines, -0.0001, 1);
 
             // Only do a collision if there is an intersection, and we're going _into_ the wall not
             // out of it.  The normal check is needed to ensure that people don't get stuck inside
