@@ -336,9 +336,34 @@ function frame() {
 
             var intersection = raycast(lastLocation, dir, wall_lines, 0, 1);
 
-            if (intersection) {
-                console.log(intersection);
+            // Only do a collision if there is an intersection, and we're going _into_ the wall not
+            // out of it.  The normal check is needed to ensure that people don't get stuck inside
+            // the wall with no possiblity of escape
+            if (intersection && intersection.normal.dot(dir) < 0) {
+                constraints.push({
+                    intersection: intersection,
+                    corner: corner,
+                    newCornerLocation: nextLocation
+                });
             }
+        }
+
+        /* SOLVING THE CONSTRAINTS */
+        if (constraints.length > 0) {
+            // For the time being, solve them uglily by just moving the tank the right amount in
+            // the direction of the wall's normal
+            var recoveryMovement = Vec2_ZERO();
+
+            for (var i = 0; i < constraints.length; i++) {
+                var c = constraints[i];
+
+                recoveryMovement = recoveryMovement.add(
+                    c.intersection.point.sub(c.newCornerLocation).projectOnto(c.intersection.normal)
+                );
+            }
+
+            newX += recoveryMovement.x;
+            newY += recoveryMovement.y;
         }
 
         tank.x = newX;
