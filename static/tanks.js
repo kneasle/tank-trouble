@@ -355,15 +355,59 @@ function frame() {
 
         /* SOLVING THE CONSTRAINTS */
         if (constraints.length > 0) {
-            // For the time being, solve them uglily by just moving the tank the right amount in
-            // the direction of the wall's normal
-            var recoveryMovement = Vec2_ZERO();
+            // For the time being, always solve the constraints by always moving the tank and never
+            // rotating it.
+        
+            /* First we will turn all the constraints into a list of normals and directions (it's
+             * OK to remove the data about where on the tank the collision happens, since this is
+             * irrelevant if we are only moving the tanks and not rotating them).
+             */
+            var combinedConstraints = [];
 
             for (var i = 0; i < constraints.length; i++) {
-                var c = constraints[i];
+                // Determine if a very similar normal has been encountered so far, and only update
+                // the distance requirement if this requirement is longer than the other.
+                var hasSeenASimilarNormal = false;
 
+                // Calculate the distance that the tank would have to move in order to be outside
+                // the wall
+                var distance = constraints[i].intersection.point.sub(
+                    constraints[i].newCornerLocation
+                ).projectOnto(constraints[i].intersection.normal).length();
+
+                for (var j = 0; j < combinedConstraints.length; j++) {
+                    // Test if the normals are very similar to each other by calculating their dot
+                    // product (we can assume they have unit length because the raycasting code
+                    // guaruntees that)
+                    if (
+                        constraints[i].intersection.normal.dot(
+                            combinedConstraints[j].normal
+                        ) > 0.999
+                    ) {
+                        // If the new distance is longer than the current longest distance, then
+                        // we need to move further to resolve the worst of the overlaps.
+                        combinedConstraints[j].distance = Math.max(
+                            combinedConstraints[j].distance,
+                            distance
+                        );
+
+                        hasSeenASimilarNormal = true;
+                    }
+                }
+
+                if (!hasSeenASimilarNormal) {
+                    combinedConstraints.push({
+                        normal: constraints[i].intersection.normal,
+                        distance: distance
+                    });
+                }
+            }
+
+            var recoveryMovement = Vec2_ZERO();
+
+            for (var i = 0; i < combinedConstraints.length; i++) {
                 recoveryMovement = recoveryMovement.add(
-                    c.intersection.point.sub(c.newCornerLocation).projectOnto(c.intersection.normal)
+                    combinedConstraints[i].normal.mul(combinedConstraints[i].distance)
                 );
             }
 
