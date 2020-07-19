@@ -13,7 +13,7 @@ function intersection(rayOrigin, rayDir, line) {
         return {
             rayMultiplier: rayMultiplier,
             lineMultiplier: lineMultiplier,
-            normal: lineDir.perpendicular(),
+            normal: lineDir.perpendicular().normalised(),
             point: rayOrigin.add(rayDir.mul(rayMultiplier))
         };
     }

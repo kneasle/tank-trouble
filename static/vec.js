@@ -33,6 +33,10 @@ function Vec2(x, y) {
     };
 
     // More complex but useful functions
+    this.normalised = function() {
+        return this.div(this.length());
+    };
+
     this.perpendicular = function() {
         return new Vec2(-this.y, this.x);
     };
