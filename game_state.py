@@ -194,6 +194,5 @@ class GameState:
                 'walls': [w.to_json() for w in self._maze_walls]
             },
             'tanks': self.tanks_json(),
-            'projectiles': self._projectiles,
-            'game_count': self.game_count
+            'projectiles': self._projectiles
         }
