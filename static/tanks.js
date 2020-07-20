@@ -44,12 +44,12 @@ const MAZE_FILL_FACTOR = 0.95; // What proportion of the canvas should be filled
 const TANK_CAMERA_ZOOM_FACTOR = 0.1; // Proportion of the diagonal length of the canvas window
 
 // Key bindings
-const KEY_LEFT = 75;
-const KEY_UP = 79;
-const KEY_RIGHT = 59;
-const KEY_DOWN = 76;
+const KEY_LEFT = 37;
+const KEY_UP = 38;
+const KEY_RIGHT = 39;
+const KEY_DOWN = 40;
 
-const SHOOT_KEY = 88;
+const SHOOT_KEY = 32;
 
 // Gameplay constants
 const ROTATION_SPEED = 5; // rad/s
