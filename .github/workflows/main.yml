@@ -21,4 +21,4 @@ jobs:
           sudo apt-get install pylint3
           pip3 install -r requirements.txt
       - name: Run linter
-        run: pylint3 **/*.py
+        run: pylint3 *.py
