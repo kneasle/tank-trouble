@@ -17,6 +17,8 @@ var maze = {
 var tanks = {};
 var serverTanks = {};
 
+var currentGameCount = 0;
+
 var projectiles = {};
 var nextProjectileId = 0;
 
@@ -91,6 +93,7 @@ function onLoad() {
         tanks = state.tanks;
         serverTanks = state.tanks;
         projectiles = state.projectiles;
+        currentGameCount = state.gameCount;
     };
 
     // When the connection is established, tell the server that a new player has arrived
@@ -218,6 +221,7 @@ function updateServer() {
     if (myTank) {
         socket.emit("c_on_tank_move", {
             tag: params.name,
+            gameCount: currentGameCount,
             newState: {
                 x: myTank.x,
                 y: myTank.y,

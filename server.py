@@ -119,9 +119,16 @@ def on_user_leave():
 def on_tank_move(tank_data):
     """ Called when a tank moves. """
 
-    game_state.update_tank(tank_data['tag'], tank_data['newState'])
+    # We make sure that the game count of when the tank moved is sent in every packet.  This way,
+    # when a game has only just started we can tell if incoming movement packets are actually
+    # relevant to this game or not.  If this check were to not happen, then the tanks could glitch
+    # back to their positions before the game started because some movement packets were coming
+    # through the ether when the game started and the server didn't check that they came from the
+    # current game
+    if game_state.game_count == tank_data['gameCount']:
+        socketio.emit('s_on_tank_move', tank_data)
 
-    socketio.emit('s_on_tank_move', tank_data)
+    game_state.update_tank(tank_data['tag'], tank_data['newState'])
 
 
 @socketio.on('c_on_tank_explode')
