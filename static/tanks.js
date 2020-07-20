@@ -331,7 +331,7 @@ function frame() {
             var lastLocation = transformCoord(corner, Vec2from(tank), tank.r);
             var nextLocation = transformCoord(corner, new Vec2(newX, newY), newR);
 
-            // Calculate this as a vector
+            // Calculate the movement direction as a vector
             var dir = nextLocation.sub(lastLocation);
 
             // Ignore this corner if it hasn't moved
@@ -339,6 +339,7 @@ function frame() {
                 continue;
             }
 
+            // Perform a raycast in the direction that the corner has moved
             var intersection = raycast(lastLocation, dir, wall_lines, -0.0001, 1);
 
             // Only do a collision if there is an intersection, and we're going _into_ the wall not
