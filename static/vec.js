@@ -32,6 +32,15 @@ function Vec2(x, y) {
         return this.dot(this);
     };
 
+    // Pointwise min/max
+    this.min = function(other) {
+        return new Vec2(Math.min(this.x, other.x), Math.min(this.y, other.y));
+    };
+
+    this.max = function(other) {
+        return new Vec2(Math.max(this.x, other.x), Math.max(this.y, other.y));
+    };
+
     // More complex but useful functions
     this.normalised = function() {
         return this.div(this.length());
@@ -55,6 +64,26 @@ function Vec2(x, y) {
             this.x * Math.sin(angle) + this.y * Math.cos(angle)
         );
     };
+}
+
+function Vec2_min(vecs) {
+    let min = new Vec2(Infinity, Infinity);
+
+    for (var i = 0; i < vecs.length; i++) {
+        min = min.min(vecs[i]);
+    }
+
+    return min;
+}
+
+function Vec2_max(vecs) {
+    let max = new Vec2(Infinity, Infinity);
+
+    for (var i = 0; i < vecs.length; i++) {
+        max = max.max(vecs[i]);
+    }
+
+    return max;
 }
 
 // Copies the x, y values out of an object and turns them into a Vec2
