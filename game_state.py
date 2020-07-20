@@ -195,5 +195,5 @@ class GameState:
             },
             'tanks': self.tanks_json(),
             'projectiles': self._projectiles,
-            'game_count': self.game_count
+            'gameCount': self.game_count
         }
