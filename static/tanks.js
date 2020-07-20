@@ -395,6 +395,8 @@ function frame() {
                     }
                 }
 
+                // If we haven't seen a similar normal, then we should add this one to
+                // combinedConstraints
                 if (!hasSeenASimilarNormal) {
                     combinedConstraints.push({
                         normal: constraints[i].intersection.normal,
@@ -403,6 +405,9 @@ function frame() {
                 }
             }
 
+            // Calculate the total movment required in order to satisfy all the constraints.
+            // Since we are not rotating the tank, all we have to do is to add all the vectors
+            // together
             var recoveryMovement = Vec2_ZERO();
 
             for (var i = 0; i < combinedConstraints.length; i++) {
@@ -411,10 +416,12 @@ function frame() {
                 );
             }
 
+            // Apply this correction to the tank's new location
             newX += recoveryMovement.x;
             newY += recoveryMovement.y;
         }
 
+        // Overwrite the tank's current position with the new coordinates calculated above
         tank.x = newX;
         tank.y = newY;
         tank.r = newR;
