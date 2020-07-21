@@ -346,7 +346,7 @@ function frame() {
             tankBBoxMax = tankBBoxMax.max(transformedCorner);
         }
 
-        // Add these bounding boxes to the debug view
+        // Add these bounding boxes to the collision debug view
         if (DEBUG_COLLISIONS) {
             addDebugRect(tankBBoxMin, tankBBoxMax.sub(tankBBoxMin), tank.col);
         }
@@ -380,8 +380,11 @@ function frame() {
                 continue;
             }
 
+            // If we've got this far, the wall's BBox overlaps the tank's, and so we should test
+            // it for collisions.
             refinedWallLines.push(l);
 
+            // Draw a collision debug line if the flag is set
             if (DEBUG_COLLISIONS) {
                 addDebugLine(l.p1, l.p2, tank.col);
             }
