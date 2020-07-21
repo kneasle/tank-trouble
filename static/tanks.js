@@ -393,7 +393,7 @@ function frame() {
         // An array to store all the points on the tank, and how they're intersecting with the walls
         var constraints = [];
 
-        // Solve constraints relating to the corners of the tank intersecting with the wall lines.
+        // Find constraints relating to the corners of the tank intersecting with the wall lines.
         for (var i = 0; i < corners.length; i++) {
             var corner = corners[i];
 
@@ -431,7 +431,9 @@ function frame() {
         
             /* First we will turn all the constraints into a list of normals and directions (it's
              * OK to remove the data about where on the tank the collision happens, since this is
-             * irrelevant if we are only moving the tanks and not rotating them).
+             * irrelevant if we are only moving the tanks and not rotating it).  This prevents
+             * multiple intersections with the same wall causing the tank to vibrate (a bug that
+             * can be seen present in the original tank trouble game).
              */
             var combinedConstraints = [];
 
