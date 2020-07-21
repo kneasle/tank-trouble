@@ -754,7 +754,7 @@ function transformCoord(coord, origin, rotation) {
 }
 
 function inverseTransformCoord(coord, origin, rotation) {
-    return coord.sub(origin).rotatedBy(rotation);
+    return coord.sub(origin).rotatedBy(-rotation);
 }
 
 
