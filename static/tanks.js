@@ -322,6 +322,8 @@ function frame() {
          * whilst satisfying all the constraints that were calculated.
          */
 
+        /* TANK SPECIFICATION */
+
         // The corners of the tank that we should do collision testing with
         var corners = [
             // The 4 corners of the tank body
@@ -358,6 +360,7 @@ function frame() {
         var refinedWallLines = [];
         var refinedWallPoints = [];
 
+        // Cull the wall lines
         for (var i = 0; i < wallLines.length; i++) {
             let l = wallLines[i];
 
