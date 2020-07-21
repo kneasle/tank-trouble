@@ -314,13 +314,12 @@ function frame() {
         newR += tank.angularVelocity * timeDelta;
 
         /* ===== COLLISION DETECTION ===== */
-        // This works by first looping over all the walls, and compiling all the constraints on
-        // where the tank can be.  These will then be solved for the minimum movement of the tank
-        // required to satisfy them and that movement will be applied to the tank.
-
-        /* CONSTRAINT FINDING */
-        // An array to store all the points on the tank, and how they're intersecting with the walls
-        var constraints = []
+        /* This works in three stages.  First, a culling stage is performed to refine the collision
+         * checks required in the second stage as far as possible.  The second stage takes the
+         * culled data, and turns them into a list of constraints on where the tank can move to.
+         * The third stage takes these constraints and attempts to move the tank a minimal amount
+         * whilst satisfying all the constraints that were calculated.
+         */
 
         // The corners of the tank that we should do collision testing with
         var corners = [
@@ -390,6 +389,11 @@ function frame() {
             }
         }
 
+        /* FIND THE CONSTRAINTS ON THE TANK'S MOVEMENT */
+        // An array to store all the points on the tank, and how they're intersecting with the walls
+        var constraints = [];
+
+        // Solve constraints relating to the corners of the tank intersecting with the wall lines.
         for (var i = 0; i < corners.length; i++) {
             var corner = corners[i];
 
