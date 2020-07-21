@@ -66,6 +66,40 @@ function raycast(origin, directionVec, precalculatedLines, minDist, maxDist) {
     return bestIntersection;
 }
 
+function getAllUniqueWallPoints() {
+    var wallPoints = [];
+
+    // Add a point to wallPoints if another almost identical point doesn't already exist
+    function addPointIfUnique(point) {
+        // Check nearest point distance by naively iterating over all the currently added points
+        for (var j = 0; j < wallPoints.length; j++) {
+            if (wallPoints[i].sub(point).length() <= 0.0001) {
+                return;
+            }
+        }
+
+        // If we haven't returned yet, push this point to wallPoints
+        wallPoints.push(point);
+    }
+
+    for (var i = 0; i < maze.walls.length; i++) {
+        var w = maze.walls[i];
+
+        // Calculate the boundaries of the rectangle
+        var minX = w.x;
+        var minY = w.y;
+        var maxX = w.x + w.width;
+        var maxY = w.y + w.height;
+
+        addPointIfUnique(new Vec2(minX, minY)); // Top left
+        addPointIfUnique(new Vec2(maxX, minY)); // Top right
+        addPointIfUnique(new Vec2(minX, maxY)); // Bottom left
+        addPointIfUnique(new Vec2(maxX, maxY)); // Bottom right
+    }
+
+    return wallPoints;
+}
+
 function getAllWallBoundingLines(padding) {
     var padding = padding || 0;
 
