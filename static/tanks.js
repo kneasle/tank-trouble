@@ -542,6 +542,8 @@ function frame() {
         }
     }
 
+    drawAllDebugShapes(ctx);
+
     if (DEBUG_RECT_OUTLINES) {
         var lines = getAllWallBoundingLines(BULLET_RADIUS);
 
