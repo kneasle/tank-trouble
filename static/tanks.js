@@ -61,6 +61,7 @@ const MAX_OWNED_BULLETS = 5; // Number of bullets allowed to be owned by one tan
 var DEBUG_SERVER_TANKS = false;
 var DEBUG_RECT_OUTLINES = false;
 var DEBUG_RAYCAST = false;
+var DEBUG_COLLISIONS = false;
 
 var ATTACH_CAMERA_TO_TANK = false;
 
@@ -340,7 +341,9 @@ function frame() {
         }
 
         // Add these bounding boxes to the debug view
-        addDebugRect(tankBBoxMin, tankBBoxMax.sub(tankBBoxMin), tank.col);
+        if (DEBUG_COLLISIONS) {
+            addDebugRect(tankBBoxMin, tankBBoxMax.sub(tankBBoxMin), tank.col);
+        }
 
         // Use this bounding box to determine which wall lines are never going to be overlapping
         // with the tank.  This assumes that the corners of the tank that can collide with walls
@@ -373,7 +376,9 @@ function frame() {
 
             refinedWallLines.push(l);
 
-            addDebugLine(l.p1, l.p2, tank.col);
+            if (DEBUG_COLLISIONS) {
+                addDebugLine(l.p1, l.p2, tank.col);
+            }
         }
 
         for (var i = 0; i < corners.length; i++) {
