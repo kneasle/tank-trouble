@@ -337,6 +337,8 @@ function frame() {
             new Vec2(TANK_LENGTH * (0.5 + BARREL_OVERHANG), TANK_WIDTH * BARREL_RADIUS)
         ];
 
+        /* CULL POINTS AND LINES THAT THE TANK CANNOT OVERLAP WITH */
+
         // Calculate the new bounding box of the tank (for use culling wall lines for the raycasts)
         var tankBBoxMin = Vec2_ONE().mul(Infinity);
         var tankBBoxMax = Vec2_ONE().mul(-Infinity);
