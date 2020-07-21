@@ -261,7 +261,8 @@ function frame() {
     }
 
     /* PRECALCULATE THE WALL STATE, SINCE IT WILL NOT CHANGE PER TANK */
-    var wallLines = getAllWallBoundingLines()
+    var wallLines = getAllWallBoundingLines();
+    var wallPoints = getAllUniqueWallPoints();
 
     // Update all the tanks' positions
     for (const id in tanks) {
@@ -355,6 +356,7 @@ function frame() {
         // must be moving away from the centre of the tank, and therefore the entire raycast is
         // contained within the bounding box of the tank.
         var refinedWallLines = [];
+        var refinedWallPoints = [];
 
         for (var i = 0; i < wallLines.length; i++) {
             let l = wallLines[i];
@@ -386,6 +388,24 @@ function frame() {
             // Draw a collision debug line if the flag is set
             if (DEBUG_COLLISIONS) {
                 addDebugLine(l.p1, l.p2, tank.col);
+            }
+        }
+
+        // Cull the wall points
+        for (var i = 0; i < wallPoints.length; i++) {
+            let p = wallPoints[i];
+
+            // Check that the point lies within the tank's bounding box
+            if (p.x >= tankBBoxMin.x && p.x <= tankBBoxMax.x
+             && p.y >= tankBBoxMin.y && p.y <= tankBBoxMax.y
+            ) {
+                // Add it to the refined list
+                refinedWallPoints.push(p);
+
+                // Draw a debug collision line if the flag is set
+                if (DEBUG_COLLISIONS) {
+                    addDebugPoint(p, tank.col);
+                }
             }
         }
 
