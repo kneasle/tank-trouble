@@ -329,8 +329,8 @@ function frame() {
             // The 4 corners of the tank body
             new Vec2(-TANK_LENGTH / 2, -TANK_WIDTH / 2),
             new Vec2(-TANK_LENGTH / 2, TANK_WIDTH / 2),
-            new Vec2(TANK_LENGTH / 2, -TANK_WIDTH / 2),
             new Vec2(TANK_LENGTH / 2, TANK_WIDTH / 2),
+            new Vec2(TANK_LENGTH / 2, -TANK_WIDTH / 2),
 
             // The outer two corners of the turret
             new Vec2(TANK_LENGTH * (0.5 + BARREL_OVERHANG), -TANK_WIDTH * BARREL_RADIUS),
