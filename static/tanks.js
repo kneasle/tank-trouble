@@ -260,7 +260,7 @@ function frame() {
     }
 
     /* PRECALCULATE THE WALL STATE, SINCE IT WILL NOT CHANGE PER TANK */
-    var wall_lines = getAllWallBoundingLines()
+    var wallLines = getAllWallBoundingLines()
 
     // Update all the tanks' positions
     for (const id in tanks) {
@@ -357,7 +357,7 @@ function frame() {
             }
 
             // Perform a raycast in the direction that the corner has moved
-            var intersection = raycast(lastLocation, dir, wall_lines, -0.0001, 1);
+            var intersection = raycast(lastLocation, dir, wallLines, -0.0001, 1);
 
             // Only do a collision if there is an intersection, and we're going _into_ the wall not
             // out of it.  The normal check is needed to ensure that people don't get stuck inside
