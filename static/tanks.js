@@ -341,6 +341,41 @@ function frame() {
 
         // Add these bounding boxes to the debug view
         addDebugRect(tankBBoxMin, tankBBoxMax.sub(tankBBoxMin), tank.col);
+
+        // Use this bounding box to determine which wall lines are never going to be overlapping
+        // with the tank.  This assumes that the corners of the tank that can collide with walls
+        // must be moving away from the centre of the tank, and therefore the entire raycast is
+        // contained within the bounding box of the tank.
+        var refinedWallLines = [];
+
+        for (var i = 0; i < wallLines.length; i++) {
+            let l = wallLines[i];
+
+            // The wall is too far to the left to overlap with the tank's bounding box
+            if (Math.max(l.p1.x, l.p2.x) < tankBBoxMin.x) {
+                continue;
+            }
+
+            // The wall is too far to the right to overlap with the tank's bounding box
+            if (Math.min(l.p1.x, l.p2.x) > tankBBoxMax.x) {
+                continue;
+            }
+
+            // The wall is too far up to overlap with the tank's bounding box
+            if (Math.max(l.p1.y, l.p2.y) < tankBBoxMin.y) {
+                continue;
+            }
+
+            // The wall is too far down to overlap with the tank's bounding box
+            if (Math.min(l.p1.y, l.p2.y) > tankBBoxMax.y) {
+                continue;
+            }
+
+            refinedWallLines.push(l);
+
+            addDebugLine(l.p1, l.p2, tank.col);
+        }
+
         for (var i = 0; i < corners.length; i++) {
             var corner = corners[i];
 
@@ -357,7 +392,7 @@ function frame() {
             }
 
             // Perform a raycast in the direction that the corner has moved
-            var intersection = raycast(lastLocation, dir, wallLines, -0.0001, 1);
+            var intersection = raycast(lastLocation, dir, refinedWallLines, -0.0001, 1);
 
             // Only do a collision if there is an intersection, and we're going _into_ the wall not
             // out of it.  The normal check is needed to ensure that people don't get stuck inside
