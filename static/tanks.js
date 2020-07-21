@@ -328,6 +328,19 @@ function frame() {
             new Vec2(TANK_LENGTH * (0.5 + BARREL_OVERHANG), TANK_WIDTH * BARREL_RADIUS)
         ];
 
+        // Calculate the new bounding box of the tank (for use culling wall lines for the raycasts)
+        var tankBBoxMin = Vec2_ONE().mul(Infinity);
+        var tankBBoxMax = Vec2_ONE().mul(-Infinity);
+
+        for (var i = 0; i < corners.length; i++) {
+            var transformedCorner = transformCoord(corners[i], new Vec2(newX, newY), newR);
+
+            tankBBoxMin = tankBBoxMin.min(transformedCorner);
+            tankBBoxMax = tankBBoxMax.max(transformedCorner);
+        }
+
+        // Add these bounding boxes to the debug view
+        addDebugRect(tankBBoxMin, tankBBoxMax.sub(tankBBoxMin), tank.col);
         for (var i = 0; i < corners.length; i++) {
             var corner = corners[i];
 
