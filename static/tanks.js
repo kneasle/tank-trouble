@@ -272,6 +272,12 @@ function frame() {
         var tank = tanks[id];
         var sTank = serverTanks[id];
 
+        // We don't need to waste CPU time updating the dead tanks.  Also, if we do this, we can
+        // rely on the dead tanks not moving for things like explosion particle emission.
+        if (!tank.isAlive) {
+            continue;
+        }
+
         // Edit the tank location and rotation on separate variables, so that we can perform
         // collision detection and decide actually where we want to move the tank
         var newX = tank.x;
