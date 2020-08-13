@@ -337,6 +337,20 @@ function frame() {
             new Vec2(TANK_LENGTH * (0.5 + BARREL_OVERHANG), TANK_WIDTH * BARREL_RADIUS)
         ];
 
+        // The lines that form the outer surface of the tank
+        var tankLines = [
+            // Tank body
+            { p1: corners[0], p2: corners[1] },
+            { p1: corners[1], p2: corners[2] },
+            { p1: corners[2], p2: corners[3] },
+            { p1: corners[3], p2: corners[0] },
+
+            // Tank turret
+            { p1: new Vec2(0, -TURRET_RADIUS), p2: corners[4] },
+            { p1: corners[4], p2: corners[5] },
+            { p1: corners[5], p2: new Vec2(0, TURRET_RADIUS) }
+        ];
+
         /* CULL POINTS AND LINES THAT THE TANK CANNOT OVERLAP WITH */
 
         // Calculate the new bounding box of the tank (for use culling wall lines for the raycasts)
@@ -442,9 +456,43 @@ function frame() {
             // the wall with no possiblity of escape.
             if (intersection && intersection.normal.dot(dir) < 0) {
                 constraints.push({
-                    intersection: intersection,
-                    corner: corner,
-                    newCornerLocation: nextLocation
+                    worldSpacePoint: intersection.point,
+                    worldSpaceNormal: intersection.normal,
+                    tankSpaceCoord: corner,
+                    newIntersectionPointLocation: nextLocation
+                });
+            }
+        }
+
+        // Find constraints relating to the vertices of the walls intersecting with the tank's body
+        for (var i = 0; i < refinedWallPoints.length; i++) {
+            // Transform the corner into both of the tank's local coordiante spaces (i.e. the old
+            // and new locations)
+            var point = refinedWallPoints[i];
+
+            var lastLocalLocation = inverseTransformCoord(point, Vec2from(tank), tank.r);
+            var nextLocalLocation = inverseTransformCoord(point, new Vec2(newX, newY), newR);
+
+            // Calculate the movement direction as a vector
+            var dir = nextLocalLocation.sub(lastLocalLocation);
+
+            // Ignore this corner if it hasn't moved
+            if (dir.length() <= 0.0001) {
+                continue;
+            }
+
+            // Perform a *local space* raycast of the wall point on the body of the tank
+            var intersection = raycast(lastLocalLocation, dir, tankLines, -0.001, 1);
+
+            // Only do a collision if there is an intersection, and we're going _into_ the wall not
+            // out of it.  This normal check is needed to ensure that people don't get stuck inside
+            // the wall with no possiblity of escape.
+            if (intersection && intersection.normal.dot(dir) < 0) {
+                constraints.push({
+                    worldSpacePoint: point,
+                    worldSpaceNormal: intersection.normal.mul(-1).rotatedBy(tank.r),
+                    tankSpaceCoord: intersection.point,
+                    newIntersectionPointLocation: transformCoord(intersection.point, Vec2from(tank), tank.r)
                 });
             }
         }
@@ -469,16 +517,16 @@ function frame() {
 
                 // Calculate the distance that the tank would have to move in order to be outside
                 // the wall
-                var distance = constraints[i].intersection.point.sub(
-                    constraints[i].newCornerLocation
-                ).projectOnto(constraints[i].intersection.normal).length();
+                var distance = constraints[i].worldSpacePoint.sub(
+                    constraints[i].newIntersectionPointLocation
+                ).projectOnto(constraints[i].worldSpaceNormal).length();
 
                 for (var j = 0; j < combinedConstraints.length; j++) {
                     // Test if the normals are very similar to each other by calculating their dot
                     // product (we can assume they have unit length because the raycasting code
                     // guaruntees that)
                     if (
-                        constraints[i].intersection.normal.dot(
+                        constraints[i].worldSpaceNormal.dot(
                             combinedConstraints[j].normal
                         ) > 0.999
                     ) {
@@ -497,7 +545,7 @@ function frame() {
                 // combinedConstraints
                 if (!hasSeenASimilarNormal) {
                     combinedConstraints.push({
-                        normal: constraints[i].intersection.normal,
+                        normal: constraints[i].worldSpaceNormal,
                         distance: distance
                     });
                 }
